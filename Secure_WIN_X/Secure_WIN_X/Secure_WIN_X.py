@@ -24,25 +24,28 @@ def Delete_microsoft_programm():
 def Out_microfon():
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
     Reg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
-    keyVal = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture\{3d08eafc-1fbe-4572-b102-3e217b70c85d}"
-    aKey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, PATH, 0, winreg.KEY_READ)
-    for i in range(1024):
-        try:
-            #i = 0
-            #while True:
-                #print(winreg.EnumKey(aKey, i),i)
-                asubkey_name = winreg.EnumKey(aKey, i)
-                #winreg.OpenKeyEx(aKey,winreg.EnumKey(aKey, i))
-                asubkey=winreg.OpenKey(aKey,asubkey_name)
-                val=winreg.QueryValue(asubkey, "DisplayName")
-                print (val)
-                #print(winreg.QueryValueEx(winreg.OpenKeyEx(aKey,winreg.EnumKey(aKey, i)),"Name"))
-                #i += 1
-        except EnvironmentError:
-            break
-        #except WindowsError:
-         #   break
-
+    keyVal = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
+    aKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, keyVal, 0, winreg.KEY_READ)
+    try:
+        for j in range(winreg.QueryInfoKey(aKey)[0]):
+            new_Key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,fr'{keyVal}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_READ)
+            #print(new_Key)
+            for i in range(winreg.QueryInfoKey(new_Key)[0]):
+                try:
+                    #print(winreg.EnumKey(new_Key, i),i)
+                    asubkey_name = winreg.EnumKey(new_Key, i)
+                    asubkey = winreg.OpenKey(new_Key,asubkey_name)
+                    val = winreg.QueryValueEx(asubkey, "{a45c254e-df1c-4efd-8020-67d146a850e0},2")
+                    if 'Микрофон' in val:
+                        print(winreg.EnumKey(aKey,j))
+                        print(winreg.EnumKey(new_Key, i))
+                        print(val)
+                        # изменить состояние в winreg.EnumKey(aKey,j)
+                except EnvironmentError:
+                    pass 
+    except WindowsError as e:
+        print(e)
+        pass
 
 if __name__ == '__main__':
     #Delete_microsoft_programm()

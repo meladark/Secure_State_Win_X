@@ -25,7 +25,7 @@ def Out_microfon():
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
     Reg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
     keyVal = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
-    aKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, keyVal, 0, winreg.KEY_READ)
+    aKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, keyVal, 0, winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
     try:
         for j in range(winreg.QueryInfoKey(aKey)[0]):
             new_Key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,fr'{keyVal}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_READ)
@@ -36,7 +36,7 @@ def Out_microfon():
                     asubkey_name = winreg.EnumKey(new_Key, i)
                     asubkey = winreg.OpenKey(new_Key,asubkey_name)
                     val = winreg.QueryValueEx(asubkey, "{a45c254e-df1c-4efd-8020-67d146a850e0},2")
-                    if 'Микрофон' in val:
+                    if (('Microphone' in val) or ('Микрофон' in val)):
                         print(winreg.EnumKey(aKey,j))
                         print(winreg.EnumKey(new_Key, i))
                         print(val)

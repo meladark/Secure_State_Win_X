@@ -22,13 +22,12 @@ def Delete_microsoft_programm():
     proc.wait()
 
 def Out_microfon():
-    PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+    PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
     Reg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
-    keyVal = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
-    aKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, keyVal, 0, winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
+    aKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, PATH, 0,winreg.KEY_WOW64_64KEY + winreg.KEY_READ) # 
     try:
         for j in range(winreg.QueryInfoKey(aKey)[0]):
-            new_Key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,fr'{keyVal}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_READ)
+            new_Key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,fr'{PATH}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_READ)
             #print(new_Key)
             for i in range(winreg.QueryInfoKey(new_Key)[0]):
                 try:
@@ -40,7 +39,10 @@ def Out_microfon():
                         print(winreg.EnumKey(aKey,j))
                         print(winreg.EnumKey(new_Key, i))
                         print(val)
-                        # изменить состояние в winreg.EnumKey(aKey,j)
+                        print(fr'{PATH}\{winreg.EnumKey(aKey,j)}')
+                        Key_for_delete = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,fr'{PATH}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_SET_VALUE)
+                        #winreg.SetValueEx(Key_for_delete,"DeviceState",0,winreg.REG_DWORD,0x00000009) # добавить правильное значение ключа.
+                        winreg.CloseKey(Key_for_delete)
                 except EnvironmentError:
                     pass 
     except WindowsError as e:

@@ -14,12 +14,14 @@ def Delete_microsoft_programm():
     
     for List in List_of_programm:
         try:
-            #proc = subprocess.Popen(['powershell','Get-AppxPackage *%s*| Remove-AppxPackage;' % List])
+            proc = subprocess.Popen(['powershell','Get-AppxPackage *%s*| Remove-AppxPackage;' % List],stdout = subprocess.PIPE) 
+            logging.info(proc.communicate())
             logging.info("Success %s" % List)
         except:
-            logging.info('Unsuccess %s' % List)
-    #proc = subprocess.Popen(['powershell','C:\Windows\SysWOW64\OneDriveSetup.exe /uninstall'])
-    #proc.wait()
+            logging.info(proc.communicate())
+            logging.info('Unsuccess %s' % List)          
+    proc = subprocess.Popen(['powershell','C:\Windows\SysWOW64\OneDriveSetup.exe /uninstall'])
+    proc.wait()
 
 def Out_microphone():
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
@@ -33,22 +35,18 @@ def Out_microphone():
                     asubkey = winreg.OpenKey(new_Key,asubkey_name)
                     val = winreg.QueryValueEx(asubkey, "{a45c254e-df1c-4efd-8020-67d146a850e0},2")
                     if (('Microphone' in val) or ('Микрофон' in val)):
-                        print(winreg.EnumKey(aKey,j))
-                        print(winreg.EnumKey(new_Key, i))
-                        print(val)
-                        print(fr'{PATH}\{winreg.EnumKey(aKey,j)}')
                         Key_for_delete = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,fr'{PATH}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_WOW64_64KEY + winreg.KEY_SET_VALUE)                      
-                        #winreg.SetValueEx(Key_for_delete,"DeviceState",0,winreg.REG_DWORD,1000001) # добавить правильное значение ключа.
+                        winreg.SetValueEx(Key_for_delete,"DeviceState",0,winreg.REG_DWORD,1000001) # добавить правильное значение ключа.
                         winreg.CloseKey(Key_for_delete)
                 except EnvironmentError:
                     pass 
     except WindowsError as e:
-        print(e)
+        logging.error(e)
         pass
     winreg.CloseKey(aKey)
     winreg.CloseKey(new_Key)
 
 if __name__ == '__main__':
-    logging.basicConfig(filename ="Log.txt", level=logging.INFO)
-    #Delete_microsoft_programm()
-    Out_microphone()
+    logging.basicConfig(filename ="Log.doc", level=logging.INFO)
+    Delete_microsoft_programm()
+    #Out_microphone()

@@ -10,14 +10,15 @@ def Delete_microsoft_programm():
                         'soundrecorder','XboxOneSmartGlass',
                         'OneConnect','Minecraft',
                         'HiddenCityMysteryofShadows','MarchofEmpires',
-                        'CandyCrush','People']
+                        'CandyCrush','People','NetworkSpeedTest','todos',
+                        'WhiteBoard','OfficeLens']
     
     for List in List_of_programm:
         try:
             #proc = subprocess.Popen(['powershell','Get-AppxPackage *%s*| Remove-AppxPackage;' % List])
             logging.info("Success %s" % List)
-        except:
-            logging.info('Unsuccess %s' % List)
+        except WindowsError as e:
+            logging.info('Unsuccess %s \n %s' % List,e)
     #proc = subprocess.Popen(['powershell','C:\Windows\SysWOW64\OneDriveSetup.exe /uninstall'])
     #proc.wait()
 
@@ -48,7 +49,16 @@ def Out_microphone():
     winreg.CloseKey(aKey)
     winreg.CloseKey(new_Key)
 
+def Out_webcam():
+    print('Start')
+    Command_for_find_PnPDevice = 'get-pnpDevice | where {$_.FriendlyName -like "*Webcam*"}'
+    Command_for_disabled_PnPDevice = '| Disable-PnpDevice'
+    proc = subprocess.Popen(['powershell',Command_for_find_PnPDevice])
+    proc.wait()
+    print('Over')
+
 if __name__ == '__main__':
     logging.basicConfig(filename ="Log.txt", level=logging.INFO)
     #Delete_microsoft_programm()
-    Out_microphone()
+    Out_webcam()
+    #Out_microphone()

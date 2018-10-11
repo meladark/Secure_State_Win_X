@@ -50,24 +50,26 @@ def Out_microphone():
     winreg.CloseKey(new_Key)
 
 def Out_webcam():
+    string = ""
     print('Start')
     Command_for_find_PnPDevice = 'get-pnpDevice | where {$_.FriendlyName -like "*Webcam*"}'
     Command_for_disabled_PnPDevice = '| Disable-PnpDevice'
-    proc = subprocess.run(['powershell',Command_for_find_PnPDevice], shell=False, stdout = subprocess.PIPE)
+    proc = subprocess.run(['powershell',Command_for_find_PnPDevice], shell=True, stdout = subprocess.PIPE)
     print(proc.stdout)
+    string += str(proc.stdout)
     logging.info(proc.stdout)
     print('Over')
+    return string
 
-def Beautiful_conclusion():
+def Beautiful_conclusion(Text_output_for_html):
+    #Text_output_for_html.replace(r"\\",r" ")
     file = open("Test.html","w")
-    html_over = ""
-    file.writelines("<html><body><h1>Hello world!!!</h1></body></html>")
-
+    file.write(f"<html><body><pre>{Text_output_for_html}</pre></body></html>")
     os.startfile("Test.html")
 
 if __name__ == '__main__':
     logging.basicConfig(filename ="Log.doc", level=logging.INFO)
     #Delete_microsoft_programm()
-    #Out_webcam()
+    string = Out_webcam()
     #Out_microphone()
-    Beautiful_conclusion()
+    Beautiful_conclusion(string)

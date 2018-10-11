@@ -21,7 +21,7 @@ def Delete_microsoft_programm():
     proc = subprocess.Popen(['powershell','C:\Windows\SysWOW64\OneDriveSetup.exe /uninstall'])
     proc.wait()
 
-def Out_microfon():
+def Out_microphone():
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
     Reg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
     aKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, PATH, 0,winreg.KEY_WOW64_64KEY + winreg.KEY_READ) # 
@@ -51,4 +51,4 @@ def Out_microfon():
 
 if __name__ == '__main__':
     #Delete_microsoft_programm()
-    Out_microfon()
+    Out_microphone()

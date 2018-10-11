@@ -1,6 +1,7 @@
 import winreg
 import subprocess
 import logging
+import os
 
 def Delete_microsoft_programm():
     List_of_programm = ['camera','Facebook','xbox',
@@ -15,12 +16,11 @@ def Delete_microsoft_programm():
     
     for List in List_of_programm:
         try:
-            #proc = subprocess.Popen(['powershell','Get-AppxPackage *%s*| Remove-AppxPackage;' % List])
+            #proc = subprocess.run(['powershell','Get-AppxPackage *%s*| Remove-AppxPackage;' % List])
             logging.info("Success %s" % List)
         except WindowsError as e:
             logging.info('Unsuccess %s \n %s' % List,e)
-    #proc = subprocess.Popen(['powershell','C:\Windows\SysWOW64\OneDriveSetup.exe /uninstall'])
-    #proc.wait()
+    #proc = subprocess.run(['powershell','C:\Windows\SysWOW64\OneDriveSetup.exe /uninstall'])
 
 def Out_microphone():
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
@@ -53,12 +53,21 @@ def Out_webcam():
     print('Start')
     Command_for_find_PnPDevice = 'get-pnpDevice | where {$_.FriendlyName -like "*Webcam*"}'
     Command_for_disabled_PnPDevice = '| Disable-PnpDevice'
-    proc = subprocess.Popen(['powershell',Command_for_find_PnPDevice])
-    proc.wait()
+    proc = subprocess.run(['powershell',Command_for_find_PnPDevice], shell=False, stdout = subprocess.PIPE)
+    print(proc.stdout)
+    logging.info(proc.stdout)
     print('Over')
 
+def Beautiful_conclusion():
+    file = open("Test.html","w")
+    html_over = ""
+    file.writelines("<html><body><h1>Hello world!!!</h1></body></html>")
+
+    os.startfile("Test.html")
+
 if __name__ == '__main__':
-    logging.basicConfig(filename ="Log.txt", level=logging.INFO)
+    logging.basicConfig(filename ="Log.doc", level=logging.INFO)
     #Delete_microsoft_programm()
-    Out_webcam()
+    #Out_webcam()
     #Out_microphone()
+    Beautiful_conclusion()

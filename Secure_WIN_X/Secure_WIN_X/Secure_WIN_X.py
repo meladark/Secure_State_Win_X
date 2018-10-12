@@ -3,7 +3,7 @@ import subprocess
 import logging
 import os
 
-def Delete_microsoft_programm():
+def Delete_microsoft_programm(List_of_programm_):
     List_of_programm = ['camera','Facebook','xbox',
                         'Microsoft.SkypeApp','Messaging',
                         'Netflix','OneNote',
@@ -13,11 +13,14 @@ def Delete_microsoft_programm():
                         'HiddenCityMysteryofShadows','MarchofEmpires',
                         'CandyCrush','People','NetworkSpeedTest','todos',
                         'WhiteBoard','OfficeLens']
-    
+    count_first = List_of_programm_.index('Delete_Microsoft_Programm')
+    count_second = List_of_programm_.index('!Delete_Microsoft_Programm')
+    List_of_programm = List_of_programm_[count_first+1:count_second]
     for List in List_of_programm:
         try:
-            #proc = subprocess.run(['powershell','Get-AppxPackage *%s*| Remove-AppxPackage;' % List])
-            logging.info("Success %s" % List)
+            if(List[1]):
+                #proc = subprocess.run(['powershell','Get-AppxPackage *%s*| Remove-AppxPackage;' % List])
+                logging.info("Success %s" % List)
         except WindowsError as e:
             logging.info('Unsuccess %s \n %s' % List,e)
     #proc = subprocess.run(['powershell','C:\Windows\SysWOW64\OneDriveSetup.exe /uninstall'])
@@ -76,6 +79,7 @@ def Read_Config_File():
                 Read_Configuration_File_Line = Config_File.readline().title()
                 continue
             Read_Configuration_File_Line = Read_Configuration_File_Line.replace(" ","")
+            Read_Configuration_File_Line = Read_Configuration_File_Line.replace("\n","")
             if(Read_Configuration_File_Line.find("=")>-1):
                 if(Read_Configuration_File_Line.find("Yes")>-1):
                     Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],True])
@@ -84,15 +88,15 @@ def Read_Config_File():
                 else:
                     Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],"Error"])   
             else:
-                Configuration_Parameters_List.append(Read_Configuration_File_Line[0:len(Read_Configuration_File_Line)-1])
+                Configuration_Parameters_List.append(Read_Configuration_File_Line[0:len(Read_Configuration_File_Line)])
             Read_Configuration_File_Line = Config_File.readline().title()
-        print("over")
+        return Configuration_Parameters_List
 
 if __name__ == '__main__':
     logging.basicConfig(filename ="Log.doc", level=logging.INFO)
-    #Delete_microsoft_programm()
     #string = Out_webcam()
     #Out_microphone()
     #Beautiful_conclusion(string)
-    Read_Config_File()
+    config = Read_Config_File()
+    Delete_microsoft_programm(config)
     print("over")

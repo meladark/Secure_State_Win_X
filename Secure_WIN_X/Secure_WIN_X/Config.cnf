@@ -1,5 +1,27 @@
 AbC=yes
-gol = yes
-lo = No
-#Пример чего-то 
-ok = No
+Flag
+Delete_microsoft_programm
+camera = No
+Facebook = yes
+xbox = yes
+Microsoft.SkypeApp = yes
+Messaging = yes
+Netflix = yes
+OneNote = yes
+CommsPhone = yes
+SkypeApp = yes
+Twitter = yes
+soundrecorder = yes
+XboxOneSmartGlass = yes
+OneConnect = yes
+Minecraft = yes
+HiddenCityMysteryofShadows = yes
+MarchofEmpires = yes
+CandyCrush = yes
+People = yes
+NetworkSpeedTest = yes
+todos = yes
+WhiteBoard = yes
+OfficeLens = yes
+!Delete_microsoft_programm
+12334

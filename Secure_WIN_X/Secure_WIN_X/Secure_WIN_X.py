@@ -67,9 +67,32 @@ def Beautiful_conclusion(Text_output_for_html):
     file.write(f"<html><body><pre>{Text_output_for_html}</pre></body></html>")
     os.startfile("Test.html")
 
+def Read_Config_File():
+        Config_File = open("Config.cnf","r")
+        Read_Configuration_File_Line = Config_File.readline().title()
+        Configuration_Parameters_List = list()
+        while Read_Configuration_File_Line:
+            if(Read_Configuration_File_Line[0]=="#"):
+                Read_Configuration_File_Line = Config_File.readline().title()
+                continue
+            Read_Configuration_File_Line = Read_Configuration_File_Line.replace(" ","")
+            if(Read_Configuration_File_Line.find("=")>-1):
+                if(Read_Configuration_File_Line.find("Yes")>-1):
+                    Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],True])
+                elif(Read_Configuration_File_Line.find("No")>-1):
+                    Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],False])
+                else:
+                    Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],"Error"])   
+            else:
+                Configuration_Parameters_List.append(Read_Configuration_File_Line[0:len(Read_Configuration_File_Line)-1])
+            Read_Configuration_File_Line = Config_File.readline().title()
+        print("over")
+
 if __name__ == '__main__':
     logging.basicConfig(filename ="Log.doc", level=logging.INFO)
     #Delete_microsoft_programm()
-    string = Out_webcam()
+    #string = Out_webcam()
     #Out_microphone()
-    Beautiful_conclusion(string)
+    #Beautiful_conclusion(string)
+    Read_Config_File()
+    print("over")

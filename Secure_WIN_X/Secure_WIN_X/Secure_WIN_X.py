@@ -4,15 +4,6 @@ import logging
 import os
 
 def Delete_microsoft_programm(List_of_programm_):
-    List_of_programm = ['camera','Facebook','xbox',
-                        'Microsoft.SkypeApp','Messaging',
-                        'Netflix','OneNote',
-                        'CommsPhone','SkypeApp','Twitter',
-                        'soundrecorder','XboxOneSmartGlass',
-                        'OneConnect','Minecraft',
-                        'HiddenCityMysteryofShadows','MarchofEmpires',
-                        'CandyCrush','People','NetworkSpeedTest','todos',
-                        'WhiteBoard','OfficeLens']
     count_first = List_of_programm_.index('Delete_Microsoft_Programm')
     count_second = List_of_programm_.index('!Delete_Microsoft_Programm')
     List_of_programm = List_of_programm_[count_first+1:count_second]
@@ -59,12 +50,6 @@ def Out_webcam():
     logging.info(proc.stdout)
     print('Over')
     return string
-
-def Beautiful_conclusion(Text_output_for_html):
-    #Text_output_for_html.replace(r"\\",r" ")
-    file = open("Test.html","w")
-    file.write(f"<html><body><pre>{Text_output_for_html}</pre></body></html>")
-    os.startfile("Test.html")
 
 def Read_Config_File():
         Config_File = open("Config.cnf","r")

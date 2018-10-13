@@ -40,6 +40,11 @@ def Out_microphone():
     except WindowsError as e:
         print(e)
         pass
+    Command_for_disabled_PnPDevice = '| Disable-PnpDevice'
+    Command_for_find_PnPDevice = 'get-pnpDevice | where {$_.FriendlyName -like "*Микрофон*"}'
+    proc = subprocess.run(['powershell',Command_for_find_PnPDevice], shell=True, stdout = subprocess.PIPE)
+    Command_for_find_PnPDevice = 'get-pnpDevice | where {$_.FriendlyName -like "*Microphone*"}'
+    proc = subprocess.run(['powershell',Command_for_find_PnPDevice], shell=True, stdout = subprocess.PIPE)
     winreg.CloseKey(aKey)
     winreg.CloseKey(new_Key)
 
@@ -68,9 +73,12 @@ def Read_Config_File():
         while Read_Configuration_File_Line:
             if(Read_Configuration_File_Line[0]=="#"):
                 Read_Configuration_File_Line = Config_File.readline().title()
-                continue
+                continue     
             Read_Configuration_File_Line = Read_Configuration_File_Line.replace(" ","")
             Read_Configuration_File_Line = Read_Configuration_File_Line.replace("\n","")
+            if(Read_Configuration_File_Line==""):
+                Read_Configuration_File_Line = Config_File.readline().title()
+                continue 
             if(Read_Configuration_File_Line.find("=")>-1):
                 if(Read_Configuration_File_Line.find("Yes")>-1):
                     Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],True])

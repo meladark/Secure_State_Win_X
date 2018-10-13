@@ -81,11 +81,7 @@ def Read_Config_File():
                 continue 
             if(Read_Configuration_File_Line.find("=")>-1):
                 if(Read_Configuration_File_Line.find("Yes")>-1):
-                    Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],True])
-                elif(Read_Configuration_File_Line.find("No")>-1):
-                    Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],False])
-                else:
-                    Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],"Error"])   
+                    Configuration_Parameters_List.append([Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")],True])  
             else:
                 Configuration_Parameters_List.append(Read_Configuration_File_Line[0:len(Read_Configuration_File_Line)])
             Read_Configuration_File_Line = Config_File.readline().title()

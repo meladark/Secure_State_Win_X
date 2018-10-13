@@ -4,15 +4,6 @@ import logging
 import os
 
 def Delete_microsoft_programm(List_of_programm_):
-    List_of_programm = ['camera','Facebook','xbox',
-                        'Microsoft.SkypeApp','Messaging',
-                        'Netflix','OneNote',
-                        'CommsPhone','SkypeApp','Twitter',
-                        'soundrecorder','XboxOneSmartGlass',
-                        'OneConnect','Minecraft',
-                        'HiddenCityMysteryofShadows','MarchofEmpires',
-                        'CandyCrush','People','NetworkSpeedTest','todos',
-                        'WhiteBoard','OfficeLens']
     count_first = List_of_programm_.index('Delete_Microsoft_Programm')
     count_second = List_of_programm_.index('!Delete_Microsoft_Programm')
     List_of_programm = List_of_programm_[count_first+1:count_second]
@@ -94,9 +85,13 @@ def Read_Config_File():
 
 if __name__ == '__main__':
     logging.basicConfig(filename ="Log.doc", level=logging.INFO)
-    #string = Out_webcam()
-    #Out_microphone()
-    #Beautiful_conclusion(string)
     config = Read_Config_File()
+    if ["Out_Webcam",True] in config:
+        string = Out_webcam()
+    else:
+        logging.info("None Out_webcam")
+    if ["Out_Microphone",True] in config:
+        Out_microphone()
+    #Beautiful_conclusion(string)
     Delete_microsoft_programm(config)
     print("over")

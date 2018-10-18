@@ -6,8 +6,8 @@ import platform
 import subprocess
 import sys
 import winreg
-from collections import namedtuple
 
+from config_file_parser import get_config, SECTIONS_NAMES
 from regkey_value_entry import ValueEntry, HKLM, HKCU, HKCR
 
 
@@ -44,14 +44,13 @@ def disable_service(service_name):
         logging.error(f'{service_name!r} does not exist as an installed service')
 
 
-def delete_buildin_apps(config_params):
-    list_of_apps = config_params[delete_buildin_apps.__name__]
-    for app in list_of_apps:
-        if app.value:
+def delete_builtin_apps(apps):
+    for app, delete in apps:
+        if delete:
             run_pwrshell_cmd(f'Get-AppxPackage *{app.name}* | Remove-AppxPackage')
 
 
-def Out_microphone():
+def disable_microphone():
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
     aKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, PATH, 0,winreg.KEY_WOW64_64KEY + winreg.KEY_READ) # 
     try:
@@ -74,7 +73,8 @@ def Out_microphone():
     winreg.CloseKey(aKey)
     winreg.CloseKey(new_Key)
 
-def Out_webcam():
+
+def disable_webcam():
     string = ""
     print('Start')
     Command_for_find_PnPDevice = 'get-pnpDevice | where {$_.FriendlyName -like "*Webcam*"}'
@@ -87,67 +87,7 @@ def Out_webcam():
     return string
 
 
-# def Read_Config_File():
-#     Config_File = open("Config.cnf", "r")
-#     Read_Configuration_File_Line = Config_File.readline().title()
-#     Configuration_Parameters_List = list()
-#     while Read_Configuration_File_Line:
-#         if (Read_Configuration_File_Line[0] == "#"):
-#             Read_Configuration_File_Line = Config_File.readline().title()
-#             continue
-#         Read_Configuration_File_Line = Read_Configuration_File_Line.replace(" ", "")
-#         Read_Configuration_File_Line = Read_Configuration_File_Line.replace("\n", "")
-#         if (Read_Configuration_File_Line == ""):
-#             Read_Configuration_File_Line = Config_File.readline().title()
-#             continue
-#         if (Read_Configuration_File_Line.find("=") > -1):
-#             if (Read_Configuration_File_Line.find("Yes") > -1):
-#                 Configuration_Parameters_List.append(
-#                     [Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")], True])
-#             elif (Read_Configuration_File_Line.find("No") > -1):
-#                 Configuration_Parameters_List.append(
-#                     [Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")], False])
-#             else:
-#                 Configuration_Parameters_List.append(
-#                     [Read_Configuration_File_Line[0:Read_Configuration_File_Line.find("=")], "Error"])
-#         else:
-#             Configuration_Parameters_List.append(Read_Configuration_File_Line[0:len(Read_Configuration_File_Line)])
-#         Read_Configuration_File_Line = Config_File.readline().title()
-#     return Configuration_Parameters_List
-
-
-def read_config_file(params_name):
-    params_names = [name.lower() for name in params_name]
-    Param = namedtuple('Param', ['name', 'value'])
-    config_params = []
-    with open('Config.cnf', 'r') as config_file:
-        for line in config_file:
-            line = ''.join(line.rstrip().split()).lower()
-            if line.startswith('#') or not line:
-                continue
-            if line.endswith('=yes'):
-                line = line.rstrip('=yes')
-                if line in params_name:
-                    config_params.append(Param(line, True))
-                else:
-                    try:
-                        config_params[-1][1].append(Param(line, True))
-                    except IndexError:
-                        print(f'Check parameters in your config file {config_file.name!r}')
-                        # logging.critical('Wrong parameters in config file')
-            elif line.endswith('=no') or line.endswith('='):
-                line = line.rstrip('=no')
-                if line in params_name:
-                    config_params.append(Param(line, False))
-                else:
-                    config_params[-1].value.append(Param(line, False))
-            else:
-                if line in params_name:
-                    config_params.append(Param(line, []))
-    return dict(config_params)
-
-
-def change_powershell_execution_policy():
+def disable_powershell_scripts_execution():
     set_regkey_value(ValueEntry(HKLM, r'SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell', 'ExecutionPolicy', winreg.REG_SZ, 'Restricted'))
 
 
@@ -254,13 +194,32 @@ if __name__ == '__main__':
     if not ctypes.windll.shell32.IsUserAnAdmin():
         print('Please run this program as administrator!')
         logging.critical(f'You need to run a program as administrator!')
+        exit(1)
     else:
         # TODO: Add main config function
-        params_names = tuple(name for name, obj in inspect.getmembers(sys.modules['__main__']) if inspect.isfunction(obj))
-        config_params = read_config_file(params_names)
-        print(config_params)
-        # delete_buildin_apps(config_params)
-        #string = Out_webcam()
-        #Out_microphone()
-        #Beautiful_conclusion(string)
-
+        try:
+            config = get_config('config.cnf')
+        except Exception:
+            logging.critical(f'Unable to read config file')
+        else:
+            for section in SECTIONS_NAMES:
+                if config.has_section(section):
+                    if section == 'DELETE_BUILTIN_APPS':
+                        section_items = ((option, config[section].getboolean(option)) for option in config[section])
+                        delete_builtin_apps(section_items)
+                    if section == 'DIAGNOSTIC_TRACKING_AND_TELEMETRY':
+                        pass
+                    if section == 'INTERNET_EXPLORER':
+                        pass
+                    if section == 'LOCATION_AND_SENSORS':
+                        pass
+                    if section == 'MICROPHONE':
+                        pass
+                    if section == 'ONEDRIVE':
+                        pass
+                    if section == 'POWERSHELL_SCRIPTS_EXECUTION':
+                        pass
+                    if section == 'REMOTE_ACCESS':
+                        pass
+                    if section == 'WEBCAM':
+                        pass

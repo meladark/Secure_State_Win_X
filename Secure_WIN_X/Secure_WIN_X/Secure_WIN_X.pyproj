@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>233a554f-159b-4373-a717-91fc2151ef5f</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Secure_WIN_X.py</StartupFile>
+    <StartupFile>union_secure_win_x.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Secure_WIN_X.py" />
+    <Compile Include="Test_con.py" />
+    <Compile Include="union_secure_win_x.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

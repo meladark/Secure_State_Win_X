@@ -1,4 +1,6 @@
-delete_buildin_apps
+AbC=yes
+Flag
+Delete_microsoft_programm
 camera = No
 Facebook = yes
 xbox = yes
@@ -21,3 +23,5 @@ NetworkSpeedTest = yes
 todos = yes
 WhiteBoard = yes
 OfficeLens = yes
+!Delete_microsoft_programm
+12334

@@ -2,8 +2,11 @@ import winreg
 import subprocess
 import logging
 import os
+import webbrowser
+import Test_con
 
 def Delete_microsoft_programm(List_of_programm_):
+    
     count_first = List_of_programm_.index('Delete_Microsoft_Programm')
     count_second = List_of_programm_.index('!Delete_Microsoft_Programm')
     List_of_programm = List_of_programm_[count_first+1:count_second]
@@ -11,6 +14,7 @@ def Delete_microsoft_programm(List_of_programm_):
         try:
             if(List[1]):
                 #proc = subprocess.run(['powershell','Get-AppxPackage *%s*| Remove-AppxPackage;' % List])
+                Test_con.html_in(List,1)
                 logging.info("Success %s" % List)
         except WindowsError as e:
             logging.info('Unsuccess %s \n %s' % List,e)
@@ -98,4 +102,5 @@ if __name__ == '__main__':
         Out_microphone()
     #Beautiful_conclusion(string)
     Delete_microsoft_programm(config)
+    webbrowser.open_new("Test_new.html")
     print("over")

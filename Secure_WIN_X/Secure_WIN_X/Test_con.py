@@ -3,15 +3,18 @@ import webbrowser
 HTML_name = open("Test_new.html","w")
 
 def html_in(string_in_html, Check = 1, Param = True,file = HTML_name):
-    if(Check == 0):
-        file.writelines(fr'<br><font size = 6>{string_in_html}</font><br>')
-    if(Check == 1):
+    if(Check == 0): #Заголовк
+        file.writelines(fr'<br><font size = 6>{string_in_html} </font><br>')
+    if(Check == 1): #Объект с галочкой
         if Param:
-            file.writelines(fr'<font size = 4>&#10004 {string_in_html}</font><br>')
+            file.writelines(fr'<font size = 4>&#10004 {string_in_html} </font><br>')
         else:
-            file.writelines(fr'<font size = 4>&#10008 {string_in_html}</font><br>')
-    if (Check == 2):
-        file.write(fr'<p style="margin-left: 40px"><font size = 2> -{string_in_html}</font><br></p>')
+            file.writelines(fr'<font size = 4>&#10008 {string_in_html} </font><br>')
+    if (Check == 2): #Объект с крестиком
+        file.writelines(fr'<p style="margin-left: 40px"><font size = 2> -{string_in_html} </font><br></p>')
+    if(Check == 3): # Plain_Text для дополнительных тегов нет тега <br>, поэтому не будет переноса на новую строку, может вызвать ошибку!!!
+        file.writelines(fr'{string_in_html}')
+
 def Out():
     webbrowser.open_new("Test_new.html")
     HTML_name.close()

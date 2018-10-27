@@ -22,7 +22,7 @@ def set_regkey_value(value_entry):
 def run_pwrshell_cmd(*args):
     logging.info(f'Run PowerShell command {" ".join(args)!r}')
     try:
-        pwrshell_proc = subprocess.run(['powershell', '-Command', *args], capture_output=True, check=True)
+        pwrshell_proc = subprocess.run(['powershell', '-Command', *args], capture_output = True, check=True)
         logging.info(f'[OK] The exit status of last command is 0')
     except subprocess.CalledProcessError:
         logging.warning(f'[FAIL] The exit status of last command is non-zero')
@@ -51,10 +51,10 @@ def delete_buildin_apps(config_params):
     for app in list_of_apps:
         if app.value:
             Test_con.html_in(app.name)
-            run_pwrshell_cmd(f'Get-AppxPackage *{app.name}*') # | Remove-AppxPackage
+            #run_pwrshell_cmd(f'Get-AppxPackage *{app.name}*') # | Remove-AppxPackage
         else:
             Test_con.html_in(app.name,Param = False)
-            Test_con.html_in("Reason",3)
+            Test_con.html_in("Reason",2)
 
 def Out_microphone():
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"

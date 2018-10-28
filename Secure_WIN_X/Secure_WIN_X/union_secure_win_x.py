@@ -22,7 +22,8 @@ def set_regkey_value(value_entry):
 def run_pwrshell_cmd(*args):
     logging.info(f'Run PowerShell command {" ".join(args)!r}')
     try:
-        pwrshell_proc = subprocess.run(['powershell', '-Command', *args], capture_output = True, check=True)
+        pwrshell_proc = subprocess.run(['powershell', '-Command', *args],stdout = subprocess.PIPE)
+        print(pwrshell_proc.stdout)
         logging.info(f'[OK] The exit status of last command is 0')
     except subprocess.CalledProcessError:
         logging.warning(f'[FAIL] The exit status of last command is non-zero')
@@ -49,12 +50,16 @@ def delete_buildin_apps(config_params):
     Test_con.html_in("Удаленные приложения:",0)
     list_of_apps = config_params[delete_buildin_apps.__name__]
     for app in list_of_apps:
-        if app.value:
-            Test_con.html_in(app.name)
-            #run_pwrshell_cmd(f'Get-AppxPackage *{app.name}*') # | Remove-AppxPackage
+        if app.value:         
+            pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app.name}*)){{return 1}}else{{return 0}}') # | Remove-AppxPackage
+            if(pwrshell_proc.stdout == b'1\r\n'):
+                Test_con.html_in(app.name)
+            elif(pwrshell_proc.stdout == b'0\r\n'): 
+                Test_con.html_in(app.name, Param = False)
+                Test_con.html_in("Такого приложения не найдено, уточните название.",2)
         else:
-            Test_con.html_in(app.name,Param = False)
-            Test_con.html_in("Reason",2)
+            Test_con.html_in(app.name, Param = False)
+            Test_con.html_in("Отключено в конфигурационном файле",2)
 
 def Out_microphone():
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
@@ -228,6 +233,7 @@ if __name__ == '__main__':
       #  logging.critical(f'You need to run a program as administrator!')
     #else:
     if True:
+        Test_con.Init_html()
         # TODO: Add main config function
         params_names = tuple(name for name, obj in inspect.getmembers(sys.modules['__main__']) if inspect.isfunction(obj))
         config_params = read_config_file(params_names)

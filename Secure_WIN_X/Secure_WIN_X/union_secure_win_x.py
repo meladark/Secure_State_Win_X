@@ -22,8 +22,7 @@ def set_regkey_value(value_entry):
 def run_pwrshell_cmd(*args):
     logging.info(f'Run PowerShell command {" ".join(args)!r}')
     try:
-        pwrshell_proc = subprocess.run(['powershell', '-Command', *args],stdout = subprocess.PIPE)
-        print(pwrshell_proc.stdout)
+        pwrshell_proc = subprocess.run(['powershell', '-Command', *args], stdout = subprocess.PIPE)
         logging.info(f'[OK] The exit status of last command is 0')
     except subprocess.CalledProcessError:
         logging.warning(f'[FAIL] The exit status of last command is non-zero')
@@ -62,6 +61,7 @@ def delete_buildin_apps(config_params):
             Test_con.html_in("Отключено в конфигурационном файле",2)
 
 def Out_microphone():
+    Test_con.html_in("Выключение микрофона",0)
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
     aKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, PATH, 0,winreg.KEY_WOW64_64KEY + winreg.KEY_READ) # 
     try:
@@ -73,11 +73,19 @@ def Out_microphone():
                     asubkey = winreg.OpenKey(new_Key,asubkey_name)
                     val = winreg.QueryValueEx(asubkey, "{a45c254e-df1c-4efd-8020-67d146a850e0},2")
                     if (('Microphone' in val) or ('Микрофон' in val)):
-                        Key_for_delete = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,fr'{PATH}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_WOW64_64KEY + winreg.KEY_SET_VALUE)                      
-                        winreg.SetValueEx(Key_for_delete,"DeviceState",0,winreg.REG_DWORD,1000001) # добавить правильное значение ключа.
+                        Key_for_delete = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,fr'{PATH}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_WOW64_64KEY + winreg.KEY_SET_VALUE)                      
+                        winreg.SetValueEx(Key_for_delete,"DeviceState",0,winreg.REG_DWORD,10000001) # добавить правильное значение ключа.
                         winreg.CloseKey(Key_for_delete)
-                except EnvironmentError:
-                    pass 
+                        Key_for_delete = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,fr'{PATH}\{winreg.EnumKey(aKey,j)}',0,winreg.KEY_WOW64_64KEY + winreg.KEY_READ)                
+                        if (winreg.QueryValueEx(Key_for_delete,"DeviceState")[0] == 10000001):
+                            Test_con.html_in("Миркофон отключен")                  #10000001
+                        else:
+                            Test_con.html_in("Микрофон не отключен", Param = False)
+                        winreg.CloseKey(Key_for_delete)
+                except EnvironmentError as e:
+                    print(e)
+                except FileNotFoundError:
+                    pass
     except WindowsError as e:
         logging.error(e)
         pass
@@ -85,13 +93,18 @@ def Out_microphone():
     winreg.CloseKey(new_Key)
 
 def Out_webcam():
-    Command_for_find_PnPDevice = 'get-pnpDevice | where {$_.FriendlyName -like "*Webcam*"}'
+    Test_con.html_in("Состояние Веб-камеры",0)
+    Command_for_find_PnPDevice = 'if ((get-pnpDevice | where {{$_.FriendlyName -like "*Webcam*"}})){{return 1}}else{{return 0}}'
     Command_for_disabled_PnPDevice = '| Disable-PnpDevice'
-    proc = subprocess.run(['powershell',Command_for_find_PnPDevice], shell=True, stdout = subprocess.PIPE)
-    print(proc.stdout)
-    string += str(proc.stdout)
+    proc = subprocess.run(['powershell',fr'if ((get-pnpDevice | where {{$_.FriendlyName -like "*Webcam*"}})){{return 1}}else{{return 0}}'], stdout = subprocess.PIPE)
+    if(proc.stdout == b'1\r\n'):
+        #subprocess.run(['powershell',get-pnpDevice | where {{$_.FriendlyName -like "*Webcam*"}}{Command_for_disabled_PnPDevice}])
+        Test_con.html_in("Веб-камера отключена успешно.")
+    elif(proc.stdout == b'0\r\n'):
+        Test_con.html_in("Устройство Веб-камеры не было найдено", Param = False)
+    else:
+        Test_con.html_in(proc.stdout,3)
     logging.info(proc.stdout)
-    return string
 
 def read_config_file(params_name):
     params_names = [name.lower() for name in params_name]
@@ -237,8 +250,10 @@ if __name__ == '__main__':
         # TODO: Add main config function
         params_names = tuple(name for name, obj in inspect.getmembers(sys.modules['__main__']) if inspect.isfunction(obj))
         config_params = read_config_file(params_names)
-        print(config_params)
+        #print(config_params)
         delete_buildin_apps(config_params)
+        #Out_microphone()
+        #Out_webcam()
         Test_con.Out()
 
 

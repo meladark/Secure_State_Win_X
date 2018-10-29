@@ -1,4 +1,5 @@
 import ctypes
+import configparser
 import logging
 import os
 import platform
@@ -7,10 +8,82 @@ import winreg
 from itertools import chain
 
 import Test_con
-from config_file_parser import get_config, CONFIG_SECTIONS
-from regkeys_data import REGKEYS_DICT
-from helpers import set_regkey_value, run_shell_cmd, run_pwrshell_cmd, disable_service
-from regkey_value_entry import ValueEntry
+from config_data import CONFIG_SECTIONS
+from regkeys_data import REGKEYS_DICT, ValueEntry
+
+
+def create_default_config(config, config_path):
+    for section, options in sorted(CONFIG_SECTIONS.items()):
+        config.add_section(section)
+        if options is None:
+            config.set(section, "disable", "no")
+        else:
+            for option in options:
+                config.set(section, option, "no")
+    with open(config_path, "w") as config_file:
+        config.write(config_file)
+    return config
+
+
+def get_config(config_path):
+    config = configparser.ConfigParser()
+    config.BOOLEAN_STATES.update({"": False})
+    if not os.path.exists(config_path):
+        return create_default_config(config, config_path)
+    try:
+        config.read(config_path)
+    except configparser.ParsingError as pars_err:
+        print(f"Config file {config_path!r} contains errors:")
+        for line_number, key_name in pars_err.errors:
+            key_name = key_name.replace("\'", "").replace("\\n", "")
+            print(f"\t[line {line_number}] Key {key_name!r} without value")
+        raise
+    for section in config:
+        try:
+            if section != "DEFAULT" and section not in CONFIG_SECTIONS:
+                raise configparser.NoSectionError(section)
+        except configparser.NoSectionError:
+            print(f"Incorrect section name {section!r} in config file {config_path!r}."
+                  f"\nAvailable sections names: {', '.join(name for name in CONFIG_SECTIONS)}")
+            raise
+    return config
+
+
+def set_regkey_value(value_entry):
+    opened_regkey = winreg.CreateKeyEx(
+        value_entry.root_key, value_entry.subkey, 0, winreg.KEY_WOW64_64KEY + winreg.KEY_WRITE
+    )
+    winreg.SetValueEx(opened_regkey, value_entry.name, 0, value_entry.data_type, value_entry.data)
+    winreg.CloseKey(opened_regkey)
+    logging.info(f"Set {str(value_entry).lower()}")
+
+
+def run_pwrshell_cmd(*args):
+    logging.info(f"Run PowerShell command {' '.join(args)!r}")
+    pwrshell_proc = subprocess.run(
+        ["powershell", "-Command", *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    if not pwrshell_proc.returncode:
+        logging.info(f"[OK] The exit status of last command is 0")
+    else:
+        logging.warning(f"[FAIL] The exit status of last command is non-zero")
+    return pwrshell_proc
+
+
+def run_shell_cmd(command):
+    logging.info(f'Run command {command!r}')
+    proc = subprocess.run(command.split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return proc
+
+
+def disable_service(service_name):
+    sc_proc = run_shell_cmd(f"sc.exe query {service_name}")
+    if sc_proc.returncode != 1060:
+        run_shell_cmd(f"sc.exe stop {service_name}")
+        run_shell_cmd(f"sc.exe config {service_name} start=disabled")
+        logging.info(f"Service {service_name!r} is disabled")
+    else:
+        logging.error(f"{service_name!r} does not exist as an installed service")
 
 
 def delete_builtin_apps(config_options):

@@ -233,31 +233,27 @@ if __name__ == "__main__":
         exit(1)
     else:
         Test_con.Init_html()
-        # TODO: Add main config function
         try:
             config = get_config("config.cfg")
         except Exception:
             logging.critical("Unable to read config file")
         else:
+            funcs = {
+                "delete_builtin_apps": delete_builtin_apps,
+                "diagnostic_tracking_and_telemetry": disable_diagtracking_and_telemetry,
+                "internet_explorer": disable_internet_explorer,
+                "location_and_sensors": disable_location_and_sensors,
+                "microphone": Out_microphone,
+                "onedrive": uninstall_onedrive,
+                "powershell_scripts_execution": disable_powershell_scripts_execution,
+                "remote_access": disable_remote_access,
+                "webcam": Out_webcam,
+            }
             for section in CONFIG_SECTIONS:
                 if config.has_section(section):
-                    if section == 'DELETE_BUILTIN_APPS':
-                        config_options = ((option, config[section].getboolean(option)) for option in config[section])
-                        delete_builtin_apps(config_options)
-                    elif section == 'DIAGNOSTIC_TRACKING_AND_TELEMETRY':
-                        pass
-                    elif section == 'INTERNET_EXPLORER':
-                        pass
-                    elif section == 'LOCATION_AND_SENSORS':
-                        pass
-                    elif section == 'MICROPHONE':
-                        pass
-                    elif section == 'ONEDRIVE':
-                        pass
-                    elif section == 'POWERSHELL_SCRIPTS_EXECUTION':
-                        pass
-                    elif section == 'REMOTE_ACCESS':
-                        pass
-                    elif section == 'WEBCAM':
-                        pass
+                    config_options = {option: config[section].getboolean(option) for option in config[section]}
+                    if config_options.get("disable", False):
+                        funcs.get(section.lower(), lambda: None)()
+                    else:
+                        funcs.get(section.lower())(config_options.items())
         Test_con.Out()

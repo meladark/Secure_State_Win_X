@@ -43,19 +43,19 @@ BUILTIN_APPS = (
     "windowscommunicationsapps",
 )
 
-TRACKING_AND_TELEMETRY = (
-    "Advertising_ID",
-    "Browser_Access_To_Local_Language",
-    "Connected_User_Experiences_and_Telemetry",
-    "Customer_Experience_Improvement_Program",
-    "Microsoft_Help_Feedback",
-    "Windows_Feedback",
-)
+TRACKING_AND_TELEMETRY = {
+    "advertising_id": "Идентификатор рекламы",
+    "browser_access_to_local_language": "Доступ веб-сайтов к списку установленных языков в системе",
+    "connected_user_experiences_and_telemetry": "Сбор диагностических данных и телеметрия",
+    "customer_experience_improvement_program": "Программа улучшения качества ПО (Customer Experience Improvement зrogram)",
+    "microsoft_help_feedback": "Программа улучшения справки (Help Experience Improvement program)",
+    "windows_feedback": "Не показывать уведомления об отзывах",
+}
 
 
 CONFIG_SECTIONS = {
     "DELETE_BUILTIN_APPS": BUILTIN_APPS,
-    "DIAGNOSTIC_TRACKING_AND_TELEMETRY": TRACKING_AND_TELEMETRY,
+    "DIAGNOSTIC_TRACKING_AND_TELEMETRY": tuple(TRACKING_AND_TELEMETRY.keys()),
     "INTERNET_EXPLORER": None,
     "LOCATION_AND_SENSORS": None,
     "MICROPHONE": None,

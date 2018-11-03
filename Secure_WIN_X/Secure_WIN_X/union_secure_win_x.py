@@ -284,8 +284,8 @@ if __name__ == "__main__":
             for section in CONFIG_SECTIONS:
                 if config.has_section(section):
                     config_options = {option: config[section].getboolean(option) for option in config[section]}
-                    if config_options.get("disable", False):
+                    if config_options.get("disable"):
                         funcs.get(section.lower(), lambda: None)()
-                    else:
+                    if "disable" not in config_options:
                         funcs.get(section.lower())(config_options.items())
         Test_con.Out()

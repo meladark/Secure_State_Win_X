@@ -13,7 +13,7 @@ def html_in(string_in_html, Check = 1, Param = True,file = HTML_name):
     if (Check == 2): #Объект с крестиком
         file.writelines(fr'<pre><p style="margin-left: 40px"><font size = 2> -{string_in_html} </font><br></p></pre>')
     if(Check == 3): # Plain_Text для дополнительных тегов нет тега <br>, поэтому не будет переноса на новую строку, может вызвать ошибку!!!
-        file.writelines(fr'<font size = 4>{string_in_html}</font>')
+        file.writelines(fr'<font size = 4>{string_in_html}</font><br>')
 
 def Init_html():
     html_in("<head><meta charset=""windows-1251""></head>",3)

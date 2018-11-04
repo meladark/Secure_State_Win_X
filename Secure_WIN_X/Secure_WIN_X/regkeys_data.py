@@ -28,6 +28,10 @@ class ValueEntry:
     data_type: int = None
     data: Any = None
 
+    def __str__(self):
+        registry_key = "\\".join((REGISTRY_HIVES[self.root_key], self.subkey))
+        return fr"Имя параметра: {self.name!r}, значение: {self.data!r}, ключ реестра: {registry_key!r}"
+
     def __repr__(self):
         registry_key = "\\".join((REGISTRY_HIVES[self.root_key], self.subkey))
         return (

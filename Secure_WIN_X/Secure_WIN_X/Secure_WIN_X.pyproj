@@ -21,6 +21,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="config_data.py" />
+    <Compile Include="regkeys_data.py" />
     <Compile Include="Test_con.py" />
     <Compile Include="union_secure_win_x.py" />
   </ItemGroup>

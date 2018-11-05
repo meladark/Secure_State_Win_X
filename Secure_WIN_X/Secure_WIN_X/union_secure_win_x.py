@@ -2,14 +2,52 @@ import ctypes
 import configparser
 import logging
 import os
+import pathlib
 import platform
+import sys
 import subprocess
 import winreg
 from itertools import chain
+# Необходимо установить стороннюю библиотеку: "pip install pywin32"
+import win32con
+import win32event
+import win32process
+from win32com.shell import shellcon
+from win32com.shell.shell import ShellExecuteEx
 
 import Test_con
 from config_data import CONFIG_SECTIONS, TRACKING_AND_TELEMETRY
 from regkeys_data import REGKEYS_DICT, ValueEntry
+
+
+def is_user_an_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except Exception:
+        # If admin check failed, assuming not an admin
+        return False
+
+
+def run_as_admin(*cmd_line, wait=True):
+    verb = "runas"
+    if not cmd_line:
+        cmd_line = [sys.executable] + sys.argv
+    cmd = cmd_line[0]
+    params = " ".join(str(x) for x in cmd_line[1:])
+    process_info = ShellExecuteEx(
+        nShow=win32con.SW_SHOWNORMAL,
+        fMask=shellcon.SEE_MASK_NOCLOSEPROCESS,
+        lpVerb=verb,
+        lpFile=cmd,
+        lpParameters=params
+    )
+    if wait:
+        process_handle = process_info['hProcess']
+        win32event.WaitForSingleObject(process_handle, win32event.INFINITE)
+        return_code = win32process.GetExitCodeProcess(process_handle)
+    else:
+        return_code = None
+    return return_code
 
 
 def create_default_config(config, config_path):
@@ -257,16 +295,19 @@ def disable_diagtracking_and_telemetry(config_options):
 
 
 if __name__ == "__main__":
+    cwd = pathlib.WindowsPath(__file__).parent
     logrecord_format = "%(asctime)s | %(levelname)-8s | %(message)s"
-    logging.basicConfig(filename="logfile.log", filemode="w", format=logrecord_format, level=logging.INFO)
-    if not ctypes.windll.shell32.IsUserAnAdmin():
-        print("Please run this program as administrator!")
-        logging.critical("You need to run a program as administrator!")
-        exit(1)
+    logging.basicConfig(filename=cwd.joinpath("logfile.log"), filemode="w", format=logrecord_format, level=logging.INFO)
+    if not is_user_an_admin():
+        # print("Please run this program as administrator!")
+        # logging.critical("You need to run a program as administrator!")
+        # exit(1)
+        run_as_admin(sys.executable, __file__)
     else:
+        # TODO: добавить аргумент с путём до каталога, где будет создаваться HTML-файл
         Test_con.Init_html()
         try:
-            config = get_config("config.cfg")
+            config = get_config(cwd.joinpath("config.cfg"))
         except Exception:
             logging.critical("Unable to read config file")
         else:
@@ -289,3 +330,4 @@ if __name__ == "__main__":
                     if "disable" not in config_options:
                         funcs.get(section.lower())(config_options.items())
         Test_con.Out()
+        input("Press Enter to exit...")

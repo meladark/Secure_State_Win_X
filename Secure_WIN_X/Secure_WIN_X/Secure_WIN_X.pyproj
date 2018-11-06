@@ -26,6 +26,9 @@
     <Compile Include="Test_con.py" />
     <Compile Include="union_secure_win_x.py" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="WebMord.html" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in

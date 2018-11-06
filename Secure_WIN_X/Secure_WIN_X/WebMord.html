@@ -1,0 +1,111 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="./FileSaver.js"></script>
+    <title>Выбор элементов для WinX</title>
+        <script type="text/javascript">  
+        function Run(runapp,runarg)
+            {
+                window.location.href ='javascript:Run("'+runapp+'","'+runarg+'")';
+            }     
+        function Save_button(str){
+            var text = str;
+            var filename = "config";
+            var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, filename+".cfg");
+        }
+        function Final_compile_click (button){
+            var inp = document.getElementsByTagName("input");
+            var str = "[DELETE_BUILTIN_APPS]\n";
+            for (var i = 0; i<inp.length;i++){
+                if(inp[i].id=="array2"){
+                    if(inp[i].checked){
+                        str = str+inp[i].value+" = yes\n";
+                    }else str = str+inp[i].value+" = no\n";
+                }
+            }
+            str = str+'\n';
+            str = str + "[DIAGNOSTIC_TRACKING_AND_TELEMETRY]\n";
+            for (var i = 0; i<inp.length;i++){
+                if(inp[i].id=="array1"){
+                    if(inp[i].checked){
+                        str = str+inp[i].value+" = yes\n";
+                    }else str = str+inp[i].value+" = no\n";
+                }
+            }
+            for (var i = 0; i<inp.length;i++){
+                if(inp[i].id=="array3"){
+                    if(inp[i].checked){
+                        str = str+"\n["+inp[i].value+"]\ndisable = yes\n";
+                    }else str = str = str+"\n["+inp[i].value+"]\ndisable = no\n";
+                }
+            }
+            Save_button(str);
+        }
+        </script>
+</head>
+<body>
+    <font size = 7>Приложения для удаления</font><br>
+    <form method=get action="./Test_con.py" name="tagform">
+        <input type="checkbox" id="array2" value="3dbuilder"><font size = 5>3D Builder</font><br>
+        <input type="checkbox" id="array2" value="appconnector"><font size = 5>App Connector</font><br>
+        <input type="checkbox" id="array2" value="bingfinance"><font size = 5>Bing finance</font><br>
+        <input type="checkbox" id="array2" value="bingnews"><font size = 5>Bing News</font><br>
+        <input type="checkbox" id="array2" value="bingsports"><font size = 5>Bing Sports</font><br>
+        <input type="checkbox" id="array2" value="bingtranslator"><font size = 5>Bing Translator</font><br>
+        <input type="checkbox" id="array2" value="bingweather"><font size = 5>Bing Weather</font><br>
+        <input type="checkbox" id="array2" value="candycrush"><font size = 5>candycrush</font><br>
+        <input type="checkbox" id="array2" value="commsphone"><font size = 5>commsphone</font><br>
+        <input type="checkbox" id="array2" value="facebook"><font size = 5>facebook</font><br>
+        <input type="checkbox" id="array2" value="hiddencitymysteryofshadows"><font size = 5>hiddencitymysteryofshadows</font><br>
+        <input type="checkbox" id="array2" value="marchofempires"><font size = 5>marchofempires</font><br>
+        <input type="checkbox" id="array2" value="messaging"><font size = 5>messaging</font><br>
+        <input type="checkbox" id="array2" value="microsoft3dviewer"><font size = 5>microsoft3dviewer</font><br>
+        <input type="checkbox" id="array2" value="microsoftofficehub"><font size = 5>microsoftofficehub</font><br>
+        <input type="checkbox" id="array2" value="microsoftpowerbiforwindows"><font size = 5>microsoftpowerbiforwindows</font><br>
+        <input type="checkbox" id="array2" value="microsoftsolitairecollection"><font size = 5>microsoftsolitairecollection</font><br>
+        <input type="checkbox" id="array2" value="microsoftstickynotes"><font size = 5>microsoftstickynotes</font><br>
+        <input type="checkbox" id="array2" value="minecraft"><font size = 5>Minecraft</font><br>
+        <input type="checkbox" id="array2" value="netflix"><font size = 5>netflix</font><br>
+        <input type="checkbox" id="array2" value="networkspeedtest"><font size = 5>networkspeedtest</font><br>
+        <input type="checkbox" id="array2" value="officelens"><font size = 5>officelens</font><br>
+        <input type="checkbox" id="array2" value="oneconnect"><font size = 5>oneconnect</font><br>
+        <input type="checkbox" id="array2" value="onenote"><font size = 5>OneNote</font><br>
+        <input type="checkbox" id="array2" value="people"><font size = 5>people</font><br>
+        <input type="checkbox" id="array2" value="photos"><font size = 5>photos</font><br>
+        <input type="checkbox" id="array2" value="print3d"><font size = 5>print3d</font><br>
+        <input type="checkbox" id="array2" value="skypeapp"><font size = 5>skypeapp</font><br>
+        <input type="checkbox" id="array2" value="twitter"><font size = 5>twitter</font><br>
+        <input type="checkbox" id="array2" value="wallet"><font size = 5>wallet</font><br>
+        <input type="checkbox" id="array2" value="whiteboard"><font size = 5>whiteboard</font><br>
+        <input type="checkbox" id="array2" value="windowsalarms"><font size = 5>windowsalarms</font><br>
+        <input type="checkbox" id="array2" value="windowscalculator"><font size = 5>windowscalculator</font><br>
+        <input type="checkbox" id="array2" value="windowscamera"><font size = 5>windowscamera</font><br>
+        <input type="checkbox" id="array2" value="windowsmaps"><font size = 5>windowsmaps</font><br>
+        <input type="checkbox" id="array2" value="windowsphone"><font size = 5>windowsphone</font><br>
+        <input type="checkbox" id="array2" value="windowssoundrecorder"><font size = 5>windowssoundrecorder</font><br>
+        <input type="checkbox" id="array2" value="xbox"><font size = 5>xbox</font><br>
+        <input type="checkbox" id="array2" value="yourphone"><font size = 5>yourphone</font><br>
+        <input type="checkbox" id="array2" value="zunemusic"><font size = 5>zunemusic</font><br>
+        <input type="checkbox" id="array2" value="zunevideo"><font size = 5>zunevideo</font><br>
+        <input type="checkbox" id="array2" value="windowscommunicationsapps"><font size = 5>windowscommunicationsapps</font><br>
+    </form>
+    <font size = 7>DIAGNOSTIC_TRACKING_AND_TELEMETRY</font><br>
+    <input type="checkbox" id="array1" value="advertising_id"><font size = 5>advertising_id</font><br>
+    <input type="checkbox" id="array1" value="browser_access_to_local_language"><font size = 5>browser_access_to_local_language</font><br>
+    <input type="checkbox" id="array1" value="connected_user_experiences_and_telemetry"><font size = 5>connected_user_experiences_and_telemetry</font><br>
+    <input type="checkbox" id="array1" value="customer_experience_improvement_program"><font size = 5>customer_experience_improvement_program</font><br>
+    <input type="checkbox" id="array1" value="microsoft_help_feedback"><font size = 5>microsoft_help_feedback</font><br>
+    <input type="checkbox" id="array1" value="windows_feedback"><font size = 5>windows_feedback</font><br>
+    <br>
+    <input type="checkbox" id="array3" value="INTERNET_EXPLORER"><font size = 5>INTERNET_EXPLORER</font><br>
+    <input type="checkbox" id="array3" value="LOCATION_AND_SENSORS"><font size = 5>LOCATION_AND_SENSORS</font><br>
+    <input type="checkbox" id="array3" value="MICROPHONE"><font size = 5>MICROPHONE</font><br>
+    <input type="checkbox" id="array3" value="ONEDRIVE"><font size = 5>ONEDRIVE</font><br>
+    <input type="checkbox" id="array3" value="POWERSHELL_SCRIPTS_EXECUTION"><font size = 5>POWERSHELL_SCRIPTS_EXECUTION</font><br>
+    <input type="checkbox" id="array3" value="REMOTE_ACCESS"><font size = 5>REMOTE_ACCESS</font><br>
+    <input type="checkbox" id="array3" value="WEBCAM"><font size = 5>WEBCAM</font><br>
+
+    <input type="button" name = "first_button" value="Compile" onclick="Final_compile_click(this)"/>
+</body>
+</html>

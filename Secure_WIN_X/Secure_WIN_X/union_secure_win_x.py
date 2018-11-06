@@ -97,7 +97,7 @@ def delete_builtin_apps(config_options):
     for app_name, delete in config_options:
         if delete:
             pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app_name}*)){{return 1}}else{{return 0}}')  # TODO: Remove-AppxPackage
-            if(pwrshell_proc.stdout == b'1\r\n'):
+            if(pwrshell_proc.stdout == b'1\r\n'): 
                 Test_con.html_in(app_name)
             elif(pwrshell_proc.stdout == b'0\r\n'): 
                 Test_con.html_in(app_name, Param = False)
@@ -129,7 +129,7 @@ def Out_microphone():
                         # winreg.CloseKey(Key_for_delete)
                         # Key_for_delete = winreg.OpenKeyEx(value_entry.root_key, value_entry.subkey, 0, winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
                         if (winreg.QueryValueEx(Key_for_delete,"DeviceState")[0] == 10000001):
-                            Test_con.html_in("Миркофон отключен")                  #10000001
+                            Test_con.html_in("Микрофон отключен")                  #10000001
                         else:
                             Test_con.html_in("Микрофон не отключен", Param = False)
                         winreg.CloseKey(Key_for_delete)

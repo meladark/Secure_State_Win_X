@@ -6,8 +6,10 @@ import pathlib
 import platform
 import sys
 import subprocess
+import threading
+import time
 import winreg
-from itertools import chain
+from itertools import chain, cycle
 # Необходимо установить стороннюю библиотеку: "pip install pywin32"
 import win32con
 import win32event
@@ -18,6 +20,22 @@ from win32com.shell.shell import ShellExecuteEx
 import Test_con
 from config_data import CONFIG_SECTIONS, TRACKING_AND_TELEMETRY
 from regkeys_data import REGKEYS_DICT, ValueEntry
+
+
+def progressbar(process_name):
+    def wrapper(func):
+        def wrapped_func(*args, **kwargs):
+            animations = cycle("|/—\\")
+            t = threading.Thread(target=func, args=args, kwargs=kwargs)
+            t.start()
+            print(f"{process_name}...", end="  ")
+            while t.is_alive():
+                t.join(.1)
+                print(f"\b{next(animations)}", end="", flush=True)
+            print("\bЗавершено.")
+            time.sleep(.5)
+        return wrapped_func
+    return wrapper
 
 
 def is_user_an_admin():
@@ -130,6 +148,7 @@ def disable_service(service_name):
         Test_con.html_in(f"Служба {service_name!r} уже отключена")
 
 
+@progressbar("Удаление встроенных приложений")
 def delete_builtin_apps(config_options):
     Test_con.html_in("Удаленные приложения:",0)
     for app_name, delete in config_options:
@@ -145,6 +164,7 @@ def delete_builtin_apps(config_options):
             Test_con.html_in("Отключено в конфигурационном файле",2)
 
 
+@progressbar("Отключение микрофона")
 def Out_microphone():
     Test_con.html_in("Выключение микрофона",0)
     PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture"
@@ -183,6 +203,7 @@ def Out_microphone():
     winreg.CloseKey(new_Key)
 
 
+@progressbar("Отключение веб-камеры")
 def Out_webcam():
     Test_con.html_in("Состояние Веб-камеры",0)
     Command_for_find_PnPDevice = 'if ((get-pnpDevice | where {{$_.FriendlyName -like "*Webcam*"}})){{return 1}}else{{return 0}}'
@@ -206,6 +227,7 @@ def disable_powershell_scripts_execution():
         set_regkey_value(regkey)
 
 
+@progressbar("Отключение Internet Explorer")
 def disable_internet_explorer():
     Test_con.html_in("Internet Explorer", 0)
     dism_params = "/Online /Disable-Feature /FeatureName:Internet-Explorer-Optional-amd64 /NoRestart"
@@ -220,6 +242,7 @@ def disable_internet_explorer():
         Test_con.html_in("Internet Explorer НЕ был отключен", Param=False)
 
 
+@progressbar("Удаление OneDrive")
 def uninstall_onedrive():
     Test_con.html_in("OneDrive", 0)
     regkeys = REGKEYS_DICT.get("onedrive")
@@ -249,6 +272,7 @@ def uninstall_onedrive():
     )
 
 
+@progressbar("Отключение удаленного доступа")
 def disable_remote_access():
     Test_con.html_in("Удаленный доступ", 0)
     regkeys = REGKEYS_DICT.get("remote_access")
@@ -263,6 +287,7 @@ def disable_remote_access():
     Test_con.html_in("Удаленный рабочий стол (Remote Desktop) отключен")
 
 
+@progressbar("Отключение определения местоположения")
 def disable_location_and_sensors():
     Test_con.html_in("Местоположение и сенсоры", 0)
     regkeys = REGKEYS_DICT.get("location_and_sensors")
@@ -272,6 +297,7 @@ def disable_location_and_sensors():
     Test_con.html_in("Службы определения местоположения были отключены")
 
 
+@progressbar("Отключение функций слежения и телеметрии")
 def disable_diagtracking_and_telemetry(config_options):
     Test_con.html_in("Функции слежения и телеметрия", 0)
     regkeys = REGKEYS_DICT.get("diagtracking_and_telemetry")
@@ -295,14 +321,15 @@ def disable_diagtracking_and_telemetry(config_options):
 
 
 if __name__ == "__main__":
-    cwd = pathlib.WindowsPath(__file__).parent
+    script_path = pathlib.WindowsPath(__file__).resolve()
+    cwd = script_path.parent
     logrecord_format = "%(asctime)s | %(levelname)-8s | %(message)s"
     logging.basicConfig(filename=cwd.joinpath("logfile.log"), filemode="w", format=logrecord_format, level=logging.INFO)
     if not is_user_an_admin():
         # print("Please run this program as administrator!")
         # logging.critical("You need to run a program as administrator!")
         # exit(1)
-        run_as_admin(sys.executable, __file__)
+        run_as_admin("cmd", "/C", sys.executable, script_path)
     else:
         # TODO: добавить аргумент с путём до каталога, где будет создаваться HTML-файл
         Test_con.Init_html()
@@ -330,4 +357,4 @@ if __name__ == "__main__":
                     if "disable" not in config_options:
                         funcs.get(section.lower())(config_options.items())
         Test_con.Out()
-        input("Press Enter to exit...")
+        input("\nPress any key to exit...")

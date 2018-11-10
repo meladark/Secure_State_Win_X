@@ -158,7 +158,7 @@ def delete_builtin_apps(config_options):
                 Test_con.html_in(app_name)
             elif(pwrshell_proc.stdout == b'0\r\n'): 
                 Test_con.html_in(app_name, Param = False)
-                Test_con.html_in("Такого приложения не найдено, уточните название.",2)
+                Test_con.html_in("Такого приложения не найдено, вероятно оно не было установлено.",2)
         else:
             Test_con.html_in(app_name, Param = False)
             Test_con.html_in("Отключено в конфигурационном файле",2)

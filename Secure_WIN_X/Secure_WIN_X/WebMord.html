@@ -1,8 +1,26 @@
-<html>
+﻿<html>
 <head>
     <meta charset="utf-8">
     <script src="./FileSaver.js"></script>
     <title>Выбор элементов для WinX</title>
+    <style>
+    .explanation {
+        margin-left: 40px;
+        font-size: 50%;
+    }
+    .cite {
+        font-size: 2ch;
+        color:black;}
+    .tice {
+        font-size: 150%
+    }
+    input[type=checkbox] {
+    transform: scale(4);
+    -ms-transform: scale(10);
+    -webkit-transform: scale(1.3);
+    padding: 1px;
+    }
+    </style>
         <script type="text/javascript">  
         function Run(runapp,runarg)
             {
@@ -45,67 +63,76 @@
         </script>
 </head>
 <body>
-    <font size = 7>Приложения для удаления</font><br>
-    <form method=get action="./Test_con.py" name="tagform">
-        <input type="checkbox" id="array2" value="3dbuilder"><font size = 5>3D Builder</font><br>
-        <input type="checkbox" id="array2" value="appconnector"><font size = 5>App Connector</font><br>
-        <input type="checkbox" id="array2" value="bingfinance"><font size = 5>Bing finance</font><br>
-        <input type="checkbox" id="array2" value="bingnews"><font size = 5>Bing News</font><br>
-        <input type="checkbox" id="array2" value="bingsports"><font size = 5>Bing Sports</font><br>
-        <input type="checkbox" id="array2" value="bingtranslator"><font size = 5>Bing Translator</font><br>
-        <input type="checkbox" id="array2" value="bingweather"><font size = 5>Bing Weather</font><br>
-        <input type="checkbox" id="array2" value="candycrush"><font size = 5>candycrush</font><br>
-        <input type="checkbox" id="array2" value="commsphone"><font size = 5>commsphone</font><br>
-        <input type="checkbox" id="array2" value="facebook"><font size = 5>facebook</font><br>
-        <input type="checkbox" id="array2" value="hiddencitymysteryofshadows"><font size = 5>hiddencitymysteryofshadows</font><br>
-        <input type="checkbox" id="array2" value="marchofempires"><font size = 5>marchofempires</font><br>
-        <input type="checkbox" id="array2" value="messaging"><font size = 5>messaging</font><br>
-        <input type="checkbox" id="array2" value="microsoft3dviewer"><font size = 5>microsoft3dviewer</font><br>
-        <input type="checkbox" id="array2" value="microsoftofficehub"><font size = 5>microsoftofficehub</font><br>
-        <input type="checkbox" id="array2" value="microsoftpowerbiforwindows"><font size = 5>microsoftpowerbiforwindows</font><br>
-        <input type="checkbox" id="array2" value="microsoftsolitairecollection"><font size = 5>microsoftsolitairecollection</font><br>
-        <input type="checkbox" id="array2" value="microsoftstickynotes"><font size = 5>microsoftstickynotes</font><br>
-        <input type="checkbox" id="array2" value="minecraft"><font size = 5>Minecraft</font><br>
-        <input type="checkbox" id="array2" value="netflix"><font size = 5>netflix</font><br>
-        <input type="checkbox" id="array2" value="networkspeedtest"><font size = 5>networkspeedtest</font><br>
-        <input type="checkbox" id="array2" value="officelens"><font size = 5>officelens</font><br>
-        <input type="checkbox" id="array2" value="oneconnect"><font size = 5>oneconnect</font><br>
-        <input type="checkbox" id="array2" value="onenote"><font size = 5>OneNote</font><br>
-        <input type="checkbox" id="array2" value="people"><font size = 5>people</font><br>
-        <input type="checkbox" id="array2" value="photos"><font size = 5>photos</font><br>
-        <input type="checkbox" id="array2" value="print3d"><font size = 5>print3d</font><br>
-        <input type="checkbox" id="array2" value="skypeapp"><font size = 5>skypeapp</font><br>
-        <input type="checkbox" id="array2" value="twitter"><font size = 5>twitter</font><br>
-        <input type="checkbox" id="array2" value="wallet"><font size = 5>wallet</font><br>
-        <input type="checkbox" id="array2" value="whiteboard"><font size = 5>whiteboard</font><br>
-        <input type="checkbox" id="array2" value="windowsalarms"><font size = 5>windowsalarms</font><br>
-        <input type="checkbox" id="array2" value="windowscalculator"><font size = 5>windowscalculator</font><br>
-        <input type="checkbox" id="array2" value="windowscamera"><font size = 5>windowscamera</font><br>
-        <input type="checkbox" id="array2" value="windowsmaps"><font size = 5>windowsmaps</font><br>
-        <input type="checkbox" id="array2" value="windowsphone"><font size = 5>windowsphone</font><br>
-        <input type="checkbox" id="array2" value="windowssoundrecorder"><font size = 5>windowssoundrecorder</font><br>
-        <input type="checkbox" id="array2" value="xbox"><font size = 5>xbox</font><br>
-        <input type="checkbox" id="array2" value="yourphone"><font size = 5>yourphone</font><br>
-        <input type="checkbox" id="array2" value="zunemusic"><font size = 5>zunemusic</font><br>
-        <input type="checkbox" id="array2" value="zunevideo"><font size = 5>zunevideo</font><br>
-        <input type="checkbox" id="array2" value="windowscommunicationsapps"><font size = 5>windowscommunicationsapps</font><br>
-    </form>
-    <font size = 7>DIAGNOSTIC_TRACKING_AND_TELEMETRY</font><br>
-    <input type="checkbox" id="array1" value="advertising_id"><font size = 5>advertising_id</font><br>
-    <input type="checkbox" id="array1" value="browser_access_to_local_language"><font size = 5>browser_access_to_local_language</font><br>
-    <input type="checkbox" id="array1" value="connected_user_experiences_and_telemetry"><font size = 5>connected_user_experiences_and_telemetry</font><br>
-    <input type="checkbox" id="array1" value="customer_experience_improvement_program"><font size = 5>customer_experience_improvement_program</font><br>
-    <input type="checkbox" id="array1" value="microsoft_help_feedback"><font size = 5>microsoft_help_feedback</font><br>
-    <input type="checkbox" id="array1" value="windows_feedback"><font size = 5>windows_feedback</font><br>
-    <br>
-    <input type="checkbox" id="array3" value="INTERNET_EXPLORER"><font size = 5>INTERNET_EXPLORER</font><br>
-    <input type="checkbox" id="array3" value="LOCATION_AND_SENSORS"><font size = 5>LOCATION_AND_SENSORS</font><br>
-    <input type="checkbox" id="array3" value="MICROPHONE"><font size = 5>MICROPHONE</font><br>
-    <input type="checkbox" id="array3" value="ONEDRIVE"><font size = 5>ONEDRIVE</font><br>
-    <input type="checkbox" id="array3" value="POWERSHELL_SCRIPTS_EXECUTION"><font size = 5>POWERSHELL_SCRIPTS_EXECUTION</font><br>
-    <input type="checkbox" id="array3" value="REMOTE_ACCESS"><font size = 5>REMOTE_ACCESS</font><br>
-    <input type="checkbox" id="array3" value="WEBCAM"><font size = 5>WEBCAM</font><br>
+    <P class="cite">
+        <span class="tice">Приложения для удаления</span><br>
+        <input type="checkbox" id="array2" value="3dbuilder">3D Builder<br>
+        <input type="checkbox" id="array2" value="appconnector" checked>App Connector<br>
+        <input type="checkbox" id="array2" value="bingfinance">Bing finance<br>
+        <input type="checkbox" id="array2" value="bingnews">Bing News<br>
+        <input type="checkbox" id="array2" value="bingsports">Bing Sports<br>
+        <input type="checkbox" id="array2" value="bingtranslator" checked>Bing Translator<br>
+        <input type="checkbox" id="array2" value="bingweather">Bing Weather<br>
+        <input type="checkbox" id="array2" value="candycrush">Candy Crush All Games<br>
+        <span class="explanation">-Предустановленная игра. Будут удалены все игры этой серии.<br></span>
+        <input type="checkbox" id="array2" value="commsphone" checked>Phone<br>
+        <input type="checkbox" id="array2" value="facebook" checked>Facebook<br>
+        <input type="checkbox" id="array2" value="hiddencitymysteryofshadows">Hidden city mystery of shadows<br>
+        <span class="explanation">-Предустановленная игра.<br></span>
+        <input type="checkbox" id="array2" value="marchofempires">Марш Империй<br>
+        <span class="explanation">-Предустановленная игра.<br></span>
+        <input type="checkbox" id="array2" value="messaging" checked>Сообщения (Майкрософт)<br>
+        <input type="checkbox" id="array2" value="microsoft3dviewer">Средство просмотра смешанной реальности<br>
+        <input type="checkbox" id="array2" value="microsoftofficehub">My Office<br>
+        <input type="checkbox" id="array2" value="microsoftpowerbiforwindows">microsoftpowerbiforwindows<br>
+        <input type="checkbox" id="array2" value="microsoftsolitairecollection">Microsoft Solitaire Collection<br>
+        <input type="checkbox" id="array2" value="microsoftstickynotes">Корпорация Майкрософт записки<br>
+        <input type="checkbox" id="array2" value="minecraft">Minecraft<br>
+        <input type="checkbox" id="array2" value="netflix">Netflix<br>
+        <input type="checkbox" id="array2" value="networkspeedtest">Проверка скорости сети<br>
+        <input type="checkbox" id="array2" value="officelens">officelens<br>
+        <input type="checkbox" id="array2" value="oneconnect">Платные данные Wi-Fi и сотовой сети<br>
+        <input type="checkbox" id="array2" value="onenote" checked>OneNote<br>
+        <input type="checkbox" id="array2" value="people" checked>Люди (Майкрософт)<br>
+        <input type="checkbox" id="array2" value="photos" checked>Фотографии (Майкрософт)<br>
+        <input type="checkbox" id="array2" value="print3d">Print 3D<br>
+        <input type="checkbox" id="array2" value="skypeapp" checked>Skype<br>
+        <input type="checkbox" id="array2" value="twitter" checked>Twitter<br>
+        <input type="checkbox" id="array2" value="wallet" checked>Microsoft Pay<br>
+        <input type="checkbox" id="array2" value="whiteboard">Microsoft Whiteboard<br>
+        <input type="checkbox" id="array2" value="windowsalarms">Windows будильники и часы<br>
+        <input type="checkbox" id="array2" value="windowscalculator">Калькулятор Windows<br>
+        <input type="checkbox" id="array2" value="windowscamera" checked>Камеры в Windows<br>
+        <input type="checkbox" id="array2" value="windowsmaps" checked>Карты Windows<br>
+        <input type="checkbox" id="array2" value="windowsphone" checked>windowsphone<br>
+        <input type="checkbox" id="array2" value="windowssoundrecorder" checked>Запись голоса Windows<br>
+        <input type="checkbox" id="array2" value="xbox">Xbox<br>
+        <span class="explanation">-Будут удалены все связанные приложения.<br></span>
+        <input type="checkbox" id="array2" value="yourphone" checked>Ваш телефон<br>
+        <input type="checkbox" id="array2" value="zunemusic">Музыка Groove<br>
+        <input type="checkbox" id="array2" value="zunevideo">Кино и ТВ<br>
+        <input type="checkbox" id="array2" value="windowscommunicationsapps" checked>Почта и календарь<br>
+        <br>
+        <span class="tice">Отслеживание и телеметрия</span><br>
+        <input type="checkbox" id="array1" value="advertising_id" checked>advertising_id<br>
+        <input type="checkbox" id="array1" value="browser_access_to_local_language" checked>browser_access_to_local_language<br>
+        <input type="checkbox" id="array1" value="connected_user_experiences_and_telemetry" checked>connected_user_experiences_and_telemetry<br>
+        <input type="checkbox" id="array1" value="customer_experience_improvement_program" checked>customer_experience_improvement_program<br>
+        <input type="checkbox" id="array1" value="microsoft_help_feedback" checked>microsoft_help_feedback<br>
+        <input type="checkbox" id="array1" value="windows_feedback">windows_feedback<br><br>
+        <span class="tice">Расширенные настройки</span><br>
+        <input type="checkbox" id="array3" value="INTERNET_EXPLORER" checked>Отключение Internet Explorer<br>
+        <span class="explanation">-Полностью удалить Internet Explorer невозможно, некоторый функции являются критичными. <br></span>
+        <input type="checkbox" id="array3" value="LOCATION_AND_SENSORS" checked>Отключение определения местоположения<br>
+        <input type="checkbox" id="array3" value="MICROPHONE" checked>Отключение микрофона<br>
+        <span class="explanation">-После отключения не устанавливайте драйвера, может возникнуть ошибка. <br></span>
+        <input type="checkbox" id="array3" value="ONEDRIVE" checked>Удаление OneDrive<br>
+        <input type="checkbox" id="array3" value="POWERSHELL_SCRIPTS_EXECUTION">Блокировка испольнения скриптов PowerShell<br>
+        <input type="checkbox" id="array3" value="REMOTE_ACCESS" checked>Отключение удаленного доступа<br>
+        <input type="checkbox" id="array3" value="WEBCAM" checked>Отключение Web-камеры<br>
+        <span class="explanation">-Удаление Web-камеры происходит методом удаления всех драйверов связанных с Web-камерами<br></span>
+    </P>
 
-    <input type="button" name = "first_button" value="Compile" onclick="Final_compile_click(this)"/>
+    <input type="button" name = "first_button" value="Сохранить конфиг и Выполнить" onclick="Final_compile_click(this)"/>
+    <input type="button" name = "second_button" value="Сохранить конфиг" onclick="Final_compile_click(this)"/>
 </body>
 </html>

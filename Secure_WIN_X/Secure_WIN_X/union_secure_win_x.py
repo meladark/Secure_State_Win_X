@@ -8,6 +8,7 @@ import sys
 import subprocess
 import threading
 import time
+import webbrowser
 import winreg
 from itertools import chain, cycle
 # Необходимо установить стороннюю библиотеку: "pip install pywin32"
@@ -20,6 +21,14 @@ from win32com.shell.shell import ShellExecuteEx
 import HTML_con
 from config_data import CONFIG_SECTIONS, TRACKING_AND_TELEMETRY
 from regkeys_data import REGKEYS_DICT, ValueEntry
+
+_SCRIPT_PATH = pathlib.WindowsPath(__file__).resolve()
+_CWD = _SCRIPT_PATH.parent
+_CONFIG_PATH = _CWD.joinpath("config.cfg")
+_DOWNLOAD_PATH = pathlib.WindowsPath.home().joinpath(r"Downloads\config.cfg")
+
+_LOGRECORD_FORMAT = "%(asctime)s | %(levelname)-8s | %(message)s"
+logging.basicConfig(filename=_CWD.joinpath("logfile.log"), filemode="w", format=_LOGRECORD_FORMAT, level=logging.INFO)
 
 
 def progressbar(process_name):
@@ -321,23 +330,26 @@ def disable_diagtracking_and_telemetry(config_options):
 
 
 if __name__ == "__main__":
-    script_path = pathlib.WindowsPath(__file__).resolve()
-    cwd = script_path.parent
-    logrecord_format = "%(asctime)s | %(levelname)-8s | %(message)s"
-    logging.basicConfig(filename=cwd.joinpath("logfile.log"), filemode="w", format=logrecord_format, level=logging.INFO)
     if not is_user_an_admin():
-        # print("Please run this program as administrator!")
-        # logging.critical("You need to run a program as administrator!")
-        # exit(1)
-        run_as_admin("cmd", "/C", sys.executable, script_path)
-    else:
-        # TODO: добавить аргумент с путём до каталога, где будет создаваться HTML-файл
-        HTML_con.Init_html()
         try:
-            config = get_config(cwd.joinpath("config.cfg"))
+            run_as_admin("cmd", "/C", sys.executable, _SCRIPT_PATH)
+        except Exception:
+            print("Please run this program as administrator!")
+            logging.critical("You need to run a program as administrator!")
+            exit(1)
+    else:
+        try:
+            webbrowser.open_new(_CWD.joinpath("Web_Form_For_Conf.html"))
+            while not pathlib.WindowsPath.exists(_DOWNLOAD_PATH):
+                time.sleep(1)
+            _DOWNLOAD_PATH.replace(_CONFIG_PATH)
+            config = get_config(_CONFIG_PATH)
         except Exception:
             logging.critical("Unable to read config file")
+            exit(1)
         else:
+            # TODO: добавить аргумент с путём до каталога, где будет создаваться HTML-файл
+            HTML_con.Init_html()
             funcs = {
                 "delete_builtin_apps": delete_builtin_apps,
                 "diagnostic_tracking_and_telemetry": disable_diagtracking_and_telemetry,
@@ -356,5 +368,6 @@ if __name__ == "__main__":
                         funcs.get(section.lower(), lambda: None)()
                     if "disable" not in config_options:
                         funcs.get(section.lower())(config_options.items())
-        HTML_con.Out()
-        input("\nPress any key to exit...")
+            # TODO: добавить аргумент с путём до каталога, откуда будет открываться HTML-файл
+            HTML_con.Out()
+            input("\nPress any key to exit...")

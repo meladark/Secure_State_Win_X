@@ -1,3 +1,4 @@
+import argparse
 import ctypes
 import configparser
 import logging
@@ -11,7 +12,7 @@ import time
 import webbrowser
 import winreg
 from itertools import chain, cycle
-# Необходимо установить стороннюю библиотеку: "pip install pywin32"
+
 import win32con
 import win32event
 import win32process
@@ -77,7 +78,9 @@ def run_as_admin(*cmd_line, wait=True):
     return return_code
 
 
-def create_default_config(config, config_path):
+def create_default_config(config_path):
+    config = configparser.ConfigParser()
+    config.BOOLEAN_STATES.update({"": False})
     for section, options in sorted(CONFIG_SECTIONS.items()):
         config.add_section(section)
         if options is None:
@@ -93,23 +96,21 @@ def create_default_config(config, config_path):
 def get_config(config_path):
     config = configparser.ConfigParser()
     config.BOOLEAN_STATES.update({"": False})
-    if not os.path.exists(config_path):
-        return create_default_config(config, config_path)
     try:
         config.read(config_path)
     except configparser.ParsingError as pars_err:
-        print(f"Config file {config_path!r} contains errors:")
+        print(f"Конфигурационный файл {config_path!r} содержит ошибки:")
         for line_number, key_name in pars_err.errors:
             key_name = key_name.replace("\'", "").replace("\\n", "")
-            print(f"\t[line {line_number}] Key {key_name!r} without value")
+            print(f"\t[Строка {line_number}] Ключ {key_name!r} не имеет значения.")
         raise
     for section in config:
         try:
             if section != "DEFAULT" and section not in CONFIG_SECTIONS:
                 raise configparser.NoSectionError(section)
         except configparser.NoSectionError:
-            print(f"Incorrect section name {section!r} in config file {config_path!r}."
-                  f"\nAvailable sections names: {', '.join(name for name in CONFIG_SECTIONS)}")
+            print(f"Недопустимое имя секции {section!r} в конфигурационном файле {config_path!r}."
+                  f"\nВозможные имена секций: {', '.join(name for name in CONFIG_SECTIONS)}.")
             raise
     return config
 
@@ -121,26 +122,26 @@ def set_regkey_value(value_entry):
         )
         winreg.SetValueEx(opened_regkey, value_entry.name, 0, value_entry.data_type, value_entry.data)
         winreg.CloseKey(opened_regkey)
-        logging.info(f"Set {str(value_entry).lower()}")
+        logging.info(f"Установка {repr(value_entry).replace('Параметр', 'параметра')}.")
         HTML_con.html_in(str(value_entry))
     except Exception:
         HTML_con.html_in(str(value_entry), Param=False)
 
 
 def run_pwrshell_cmd(*args):
-    logging.info(f"Run PowerShell command {' '.join(args)!r}")
+    logging.info(f"Выполнение командлета PowerShell {' '.join(args)!r}.")
     pwrshell_proc = subprocess.run(
         ["powershell", "-Command", *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     if not pwrshell_proc.returncode:
-        logging.info(f"[OK] The exit status of last command is 0")
+        logging.info(f"[УСПЕХ] Последний командлет завершился с кодом 0.")
     else:
-        logging.warning(f"[FAIL] The exit status of last command is non-zero")
+        logging.warning(f"[НЕУДАЧА] Последний командлет завешился с ненулевым кодом.")
     return pwrshell_proc
 
 
 def run_shell_cmd(command):
-    logging.info(f'Run command {command!r}')
+    logging.info(f'Выполнение команды {command!r}.')
     proc = subprocess.run(command.split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return proc
 
@@ -148,13 +149,13 @@ def run_shell_cmd(command):
 def disable_service(service_name):
     sc_proc = run_shell_cmd(f"sc.exe query {service_name}")
     if sc_proc.returncode != 1060:
+        logging.info(f"Отключение службы {service_name!r}.")
         run_shell_cmd(f"sc.exe stop {service_name}")
         run_shell_cmd(f"sc.exe config {service_name} start=disabled")
-        logging.info(f"Service {service_name!r} is disabled")
         HTML_con.html_in(service_name)
     else:
-        logging.error(f"{service_name!r} does not exist as an installed service")
-        HTML_con.html_in(f"Служба {service_name!r} уже отключена")
+        logging.error(f"Указанная служба {service_name!r} не установлена.")
+        HTML_con.html_in(f"Служба {service_name!r} уже отключена.")
 
 
 @progressbar("Удаление встроенных приложений")
@@ -167,10 +168,10 @@ def delete_builtin_apps(config_options):
                 HTML_con.html_in(app_name)
             elif(pwrshell_proc.stdout == b'0\r\n'): 
                 HTML_con.html_in(app_name, Param = False)
-                HTML_con.html_in("Такого приложения не найдено, вероятно оно не было установлено.",2)
+                HTML_con.html_in("Такого приложения не найдено, вероятно, оно не было установлено.",2)
         else:
             HTML_con.html_in(app_name, Param = False)
-            HTML_con.html_in("Отключено в конфигурационном файле",2)
+            HTML_con.html_in("Отключено в конфигурационном файле.",2)
 
 
 @progressbar("Отключение микрофона")
@@ -187,22 +188,17 @@ def Out_microphone():
                     asubkey = winreg.OpenKey(new_Key,asubkey_name)
                     val = winreg.QueryValueEx(asubkey, "{a45c254e-df1c-4efd-8020-67d146a850e0},2")
                     if (('Microphone' in val) or ('Микрофон' in val)):
-                        # Добавил логирование
                         value_entry = ValueEntry(winreg.HKEY_LOCAL_MACHINE, fr"{PATH}\{winreg.EnumKey(aKey,j)}", "DeviceState", winreg.REG_DWORD, 10000001)
                         Key_for_delete = winreg.OpenKey(value_entry.root_key, value_entry.subkey, 0, winreg.KEY_WOW64_64KEY + winreg.KEY_SET_VALUE + winreg.KEY_READ)
                         winreg.SetValueEx(Key_for_delete, value_entry.name, 0, value_entry.data_type, value_entry.data)
-                        logging.info(f"Set {str(value_entry).lower()}")
-                        # Две строки ниже можно убрать, но пока оставил...
-                        # winreg.CloseKey(Key_for_delete)
-                        # Key_for_delete = winreg.OpenKeyEx(value_entry.root_key, value_entry.subkey, 0, winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
+                        logging.info(f"Установка {repr(value_entry).replace('Параметр', 'параметра')}.")
                         if (winreg.QueryValueEx(Key_for_delete,"DeviceState")[0] == 10000001):
-                            HTML_con.html_in("Микрофон отключен")                  #10000001
+                            HTML_con.html_in("Микрофон отключен.")                  #10000001
                         else:
-                            HTML_con.html_in("Микрофон не отключен", Param = False)
+                            HTML_con.html_in("Микрофон не отключен.", Param = False)
                         winreg.CloseKey(Key_for_delete)
                 except EnvironmentError as e:
                     pass
-                    # print(e)
                 except FileNotFoundError:
                     pass
     except WindowsError as e:
@@ -222,7 +218,7 @@ def Out_webcam():
         #subprocess.run(['powershell',get-pnpDevice | where {{$_.FriendlyName -like "*Webcam*"}}{Command_for_disabled_PnPDevice}])
         HTML_con.html_in("Веб-камера отключена успешно.")
     elif(proc.stdout == b'0\r\n'):
-        HTML_con.html_in("Устройство Веб-камеры не было найдено", Param = False)
+        HTML_con.html_in("Устройство Веб-камеры не было найдено.", Param = False)
     else:
         HTML_con.html_in(proc.stdout,3)
     logging.info(proc.stdout)
@@ -242,13 +238,13 @@ def disable_internet_explorer():
     dism_params = "/Online /Disable-Feature /FeatureName:Internet-Explorer-Optional-amd64 /NoRestart"
     dism_proc = run_shell_cmd(f"dism.exe {dism_params}")
     if not dism_proc.returncode:
-        HTML_con.html_in("Internet Explorer был отключен")
-        HTML_con.html_in("Примечание: чтобы изменение вступило в силу, необходимо перезагрузить компьютер", 2)
+        HTML_con.html_in("Internet Explorer был отключен.")
+        HTML_con.html_in("Примечание: чтобы изменение вступило в силу, необходимо перезагрузить компьютер.", 2)
         HTML_con.html_in("Важно! Поскольку Internet Explorer остается установленным на компьютере даже после "
                          "его отключения, следует и впредь устанавливать обновления безопасности, применимые "
-                         "к Internet Explorer", 2)
+                         "к Internet Explorer.", 2)
     else:
-        HTML_con.html_in("Internet Explorer НЕ был отключен", Param=False)
+        HTML_con.html_in("Internet Explorer уже отключен.", Param=False)
 
 
 @progressbar("Удаление OneDrive")
@@ -260,7 +256,7 @@ def uninstall_onedrive():
     is_64bit = True if platform.architecture()[0] == "64bit" else False
     sys_folder = "SysWOW64" if is_64bit else "System32"
     run_shell_cmd(os.path.expandvars(rf"%SystemRoot%\{sys_folder}\OneDriveSetup.exe /uninstall"))
-    HTML_con.html_in("OneDrive отключен")
+    HTML_con.html_in("OneDrive был отключен.")
     HTML_con.html_in("Установленные параметры реестра:", 3)
     # Disable OneDrive via Group Policies
     for regkey in regkeys.get("group_policies"):
@@ -292,8 +288,8 @@ def disable_remote_access():
     # Disable Remote Desktop
     for regkey in regkeys.get("remote_desktop"):
         set_regkey_value(regkey)
-    HTML_con.html_in("Удаленный помощник (Remote Assistance) отключен")
-    HTML_con.html_in("Удаленный рабочий стол (Remote Desktop) отключен")
+    HTML_con.html_in("Удаленный помощник (Remote Assistance) отключен.")
+    HTML_con.html_in("Удаленный рабочий стол (Remote Desktop) отключен.")
 
 
 @progressbar("Отключение определения местоположения")
@@ -303,7 +299,7 @@ def disable_location_and_sensors():
     HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys:
         set_regkey_value(regkey)
-    HTML_con.html_in("Службы определения местоположения были отключены")
+    HTML_con.html_in("Службы определения местоположения были отключены.")
 
 
 @progressbar("Отключение функций слежения и телеметрии")
@@ -329,27 +325,46 @@ def disable_diagtracking_and_telemetry(config_options):
                 set_regkey_value(regkey)
 
 
+def get_argparser():
+    parser = argparse.ArgumentParser(description="Программа для настройки безопасной конфигурации Windows 10.")
+    parser.add_argument("--nohtml", dest="no_html", action="store_true",
+                        help="не использовать браузер для создания конфигурационного файла")
+    return parser
+
+
 if __name__ == "__main__":
     if not is_user_an_admin():
         try:
             run_as_admin("cmd", "/C", sys.executable, _SCRIPT_PATH)
         except Exception:
-            print("Please run this program as administrator!")
-            logging.critical("You need to run a program as administrator!")
+            print("Пожалуйста, запустите программу от имени администратора!")
+            logging.critical("Критическая ошибка! Программа была запущена не от имени администратора.")
             exit(1)
     else:
+        parser = get_argparser()
+        args = parser.parse_args()
         try:
-            webbrowser.open_new(_CWD.joinpath("Web_Form_For_Conf.html"))
-            while not pathlib.WindowsPath.exists(_DOWNLOAD_PATH):
-                time.sleep(1)
-            _DOWNLOAD_PATH.replace(_CONFIG_PATH)
-            config = get_config(_CONFIG_PATH)
+            if args.no_html:
+                if not pathlib.WindowsPath.exists(_CONFIG_PATH):
+                    create_default_config(_CONFIG_PATH)
+                    print(f"В папке {_CONFIG_PATH.parent!r} был создан конфигурационный файл {_CONFIG_PATH.name!r} "
+                          f"c настройками по умолчанию.")
+                user_answer = input(f"Запустить программу 'Блокнот' для редактирования настроек "
+                                    f"файла {_CONFIG_PATH.name!r} и последующего запуска программы? [y/n]: ")
+                user_answer = user_answer.strip()
+                if user_answer in ("Y", "y", "Yes", "yes"):
+                    run_shell_cmd(f"notepad.exe {_CONFIG_PATH}")
+            else:
+                webbrowser.open_new(_CWD.joinpath("Web_Form_For_Conf.html"))
+                while not pathlib.WindowsPath.exists(_DOWNLOAD_PATH):
+                    time.sleep(1)
+                _DOWNLOAD_PATH.replace(_CONFIG_PATH)
         except Exception:
-            logging.critical("Unable to read config file")
+            logging.critical("Критическая ошибка! Невозможно прочитать файл конфигурации.")
             exit(1)
         else:
-            # TODO: определить значение PATH_to_Folder
-            HTML_con.Init_html(PATH_to_Folder)
+            config = get_config(_CONFIG_PATH)
+            HTML_con.Init_html(_CWD.joinpath("Report.html"))
             funcs = {
                 "delete_builtin_apps": delete_builtin_apps,
                 "diagnostic_tracking_and_telemetry": disable_diagtracking_and_telemetry,
@@ -368,5 +383,5 @@ if __name__ == "__main__":
                         funcs.get(section.lower(), lambda: None)()
                     if "disable" not in config_options:
                         funcs.get(section.lower())(config_options.items())
-            HTML_con.Out(PATH_to_Folder)
-            input("\nPress any key to exit...")
+            HTML_con.Out(_CWD.joinpath("Report.html"))
+            input("\nНажмите любую клавишу для выхода...")

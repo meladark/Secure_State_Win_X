@@ -348,8 +348,8 @@ if __name__ == "__main__":
             logging.critical("Unable to read config file")
             exit(1)
         else:
-            # TODO: добавить аргумент с путём до каталога, где будет создаваться HTML-файл
-            HTML_con.Init_html()
+            # TODO: определить значение PATH_to_Folder
+            HTML_con.Init_html(PATH_to_Folder)
             funcs = {
                 "delete_builtin_apps": delete_builtin_apps,
                 "diagnostic_tracking_and_telemetry": disable_diagtracking_and_telemetry,
@@ -368,6 +368,5 @@ if __name__ == "__main__":
                         funcs.get(section.lower(), lambda: None)()
                     if "disable" not in config_options:
                         funcs.get(section.lower())(config_options.items())
-            # TODO: добавить аргумент с путём до каталога, откуда будет открываться HTML-файл
-            HTML_con.Out()
+            HTML_con.Out(PATH_to_Folder)
             input("\nPress any key to exit...")

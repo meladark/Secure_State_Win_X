@@ -20,7 +20,7 @@ from win32com.shell import shellcon
 from win32com.shell.shell import ShellExecuteEx
 
 import HTML_con
-from config_data import CONFIG_SECTIONS, TRACKING_AND_TELEMETRY
+from config_data import CONFIG_SECTIONS, TRACKING_AND_TELEMETRY, BUILTIN_APPS
 from regkeys_data import REGKEYS_DICT, ValueEntry
 
 _SCRIPT_PATH = pathlib.WindowsPath(__file__).resolve()
@@ -165,12 +165,12 @@ def delete_builtin_apps(config_options):
         if delete:
             pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app_name}*)){{return 1}}else{{return 0}}')  # TODO: Remove-AppxPackage
             if(pwrshell_proc.stdout == b'1\r\n'): 
-                HTML_con.html_in(app_name)
+                HTML_con.html_in(BUILTIN_APPS[app_name])
             elif(pwrshell_proc.stdout == b'0\r\n'): 
-                HTML_con.html_in(app_name, Param = False)
+                HTML_con.html_in(BUILTIN_APPS[app_name], Param = False)
                 HTML_con.html_in("Такого приложения не найдено, вероятно, оно не было установлено.",2)
         else:
-            HTML_con.html_in(app_name, Param = False)
+            HTML_con.html_in(BUILTIN_APPS[app_name], Param = False)
             HTML_con.html_in("Отключено в конфигурационном файле.",2)
 
 

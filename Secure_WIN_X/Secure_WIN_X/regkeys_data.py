@@ -30,13 +30,13 @@ class ValueEntry:
 
     def __str__(self):
         registry_key = "\\".join((REGISTRY_HIVES[self.root_key], self.subkey))
-        return fr"Имя параметра: {self.name!r}, значение: {self.data!r}, ключ реестра: {registry_key!r}"
+        return fr"Имя параметра: {self.name!r}, значение параметра: {self.data!r}, ключ реестра: {registry_key!r}"
 
     def __repr__(self):
         registry_key = "\\".join((REGISTRY_HIVES[self.root_key], self.subkey))
         return (
-            fr"Value entry (name={self.name!r}, type={REGISTRY_VALUE_TYPES[self.data_type]!r}, data={self.data!r}) "
-            fr"of registry key {registry_key!r}"
+            fr"Параметр (Имя={self.name!r}, Тип={REGISTRY_VALUE_TYPES[self.data_type]!r}, Значение={self.data!r}) "
+            fr"ключа реестра {registry_key!r}"
         )
 
 

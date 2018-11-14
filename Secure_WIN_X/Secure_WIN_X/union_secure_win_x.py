@@ -241,14 +241,15 @@ def disable_internet_explorer():
     HTML_con.html_in("Internet Explorer", 0)
     dism_params = "/Online /Disable-Feature /FeatureName:Internet-Explorer-Optional-amd64 /NoRestart"
     dism_proc = run_shell_cmd(f"dism.exe {dism_params}")
-    if not dism_proc.returncode:
+    if dism_proc.returncode == 3010:
         HTML_con.html_in("Internet Explorer был отключен.")
         HTML_con.html_in("Примечание: чтобы изменение вступило в силу, необходимо перезагрузить компьютер.", 2)
         HTML_con.html_in("Важно! Поскольку Internet Explorer остается установленным на компьютере даже после "
                          "его отключения, следует и впредь устанавливать обновления безопасности, применимые "
                          "к Internet Explorer.", 2)
     else:
-        HTML_con.html_in("Internet Explorer уже отключен.", Param=False)
+        HTML_con.html_in("Возникла непредвиденная ошибка, Internet Explorer не был отключен.", Param=False)
+        logging.error(dism_proc.stdout)
 
 
 @progressbar("Удаление OneDrive")

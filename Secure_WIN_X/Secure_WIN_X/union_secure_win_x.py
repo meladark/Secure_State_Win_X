@@ -343,7 +343,7 @@ def get_argparser():
 if __name__ == "__main__":
     if not is_user_an_admin():
         try:
-            run_as_admin("cmd", "/C", sys.executable, _SCRIPT_PATH)
+            run_as_admin("cmd", "/C", sys.executable, _SCRIPT_PATH, *sys.argv[1:])
         except Exception:
             print("Пожалуйста, запустите программу от имени администратора!")
             logging.critical("Критическая ошибка! Программа была запущена не от имени администратора.")

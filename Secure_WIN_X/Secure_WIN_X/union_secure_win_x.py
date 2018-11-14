@@ -31,6 +31,8 @@ _DOWNLOAD_PATH = pathlib.WindowsPath.home().joinpath(r"Downloads\config.cfg")
 _LOGRECORD_FORMAT = "%(asctime)s | %(levelname)-8s | %(message)s"
 logging.basicConfig(filename=_CWD.joinpath("logfile.log"), filemode="w", format=_LOGRECORD_FORMAT, level=logging.INFO)
 
+_CODE_PAGE = os.device_encoding(1)
+
 
 def progressbar(process_name):
     def wrapper(func):
@@ -131,7 +133,7 @@ def set_regkey_value(value_entry):
 def run_pwrshell_cmd(*args):
     logging.info(f"Выполнение командлета PowerShell {' '.join(args)!r}.")
     pwrshell_proc = subprocess.run(
-        ["powershell", "-Command", *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ["powershell", "-Command", *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding=_CODE_PAGE
     )
     if not pwrshell_proc.returncode:
         logging.info(f"[УСПЕХ] Последний командлет завершился с кодом 0.")
@@ -142,7 +144,9 @@ def run_pwrshell_cmd(*args):
 
 def run_shell_cmd(command):
     logging.info(f'Выполнение команды {command!r}.')
-    proc = subprocess.run(command.split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.run(
+        command.split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding=_CODE_PAGE
+    )
     return proc
 
 
@@ -164,9 +168,9 @@ def delete_builtin_apps(config_options):
     for app_name, delete in config_options:
         if delete:
             pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app_name}*)){{return 1}}else{{return 0}}')  # TODO: Remove-AppxPackage
-            if(pwrshell_proc.stdout == b'1\r\n'): 
+            if(pwrshell_proc.stdout == b'1\r\n'):
                 HTML_con.html_in(BUILTIN_APPS[app_name])
-            elif(pwrshell_proc.stdout == b'0\r\n'): 
+            elif(pwrshell_proc.stdout == b'0\r\n'):
                 HTML_con.html_in(BUILTIN_APPS[app_name], Param = False)
                 HTML_con.html_in("Такого приложения не найдено, вероятно, оно не было установлено.",2)
         else:

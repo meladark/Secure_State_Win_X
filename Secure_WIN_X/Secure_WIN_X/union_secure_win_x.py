@@ -372,7 +372,7 @@ if __name__ == "__main__":
             exit(1)
         else:
             config = get_config(_CONFIG_PATH)
-            HTML_con.Init_html(_CWD.joinpath("Report.html"))
+            HTML_con.Init_html(_CWD.as_posix())
             funcs = {
                 "delete_builtin_apps": delete_builtin_apps,
                 "diagnostic_tracking_and_telemetry": disable_diagtracking_and_telemetry,
@@ -391,5 +391,5 @@ if __name__ == "__main__":
                         funcs.get(section.lower(), lambda: None)()
                     if "disable" not in config_options:
                         funcs.get(section.lower())(config_options.items())
-            HTML_con.Out(_CWD.joinpath("Report.html"))
+            HTML_con.Out(_CWD.as_posix())
             input("\nНажмите любую клавишу для выхода...")

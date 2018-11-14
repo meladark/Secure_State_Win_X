@@ -17,7 +17,7 @@ def html_in(string_in_html, Check = 1, Param = True,file = ""):
 def Init_html(PATH_to_Folder):
     global HTML_name
     if(isinstance(PATH_to_Folder,str)):
-       HTML_name = open(PATH_to_Folder + r"\Conclusion.html","w")
+       HTML_name = open(PATH_to_Folder + r"/Conclusion.html","w")
     else:
         HTML_name = open("Conclusion.html","w")
     html_in("<head><meta charset=""windows-1251""></head>",3)
@@ -25,7 +25,7 @@ def Init_html(PATH_to_Folder):
 def Out(PATH_to_Folder):
     useless_fun()
     if(isinstance(PATH_to_Folder,str)):
-        webbrowser.open_new(PATH_to_Folder + r"\Conclusion.html")
+        webbrowser.open_new(PATH_to_Folder + r"/Conclusion.html")
     else:
         webbrowser.open_new("Conclusion.html")  
     HTML_name.close()

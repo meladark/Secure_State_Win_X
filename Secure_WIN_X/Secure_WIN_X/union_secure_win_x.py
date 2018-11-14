@@ -275,7 +275,7 @@ def uninstall_onedrive():
     # Removing startmenu entry
     run_pwrshell_cmd(
         "Remove-Item -Force -ErrorAction SilentlyContinue",
-        os.path.expandvars(r"'%UserProfile%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk'")
+        os.path.expandvars(r'"%UserProfile%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"')
     )
     # Removing scheduled task
     run_pwrshell_cmd(

@@ -364,8 +364,8 @@ if __name__ == "__main__":
                 while not pathlib.WindowsPath.exists(_DOWNLOAD_PATH):
                     time.sleep(1)
                 _DOWNLOAD_PATH.replace(_CONFIG_PATH)
-        except Exception:
-            logging.critical("Критическая ошибка! Невозможно прочитать файл конфигурации.")
+        except Exception as config_exception:
+            logging.critical(f"Критическая ошибка! Невозможно прочитать файл конфигурации: {config_exception}")
             exit(1)
         else:
             config = get_config(_CONFIG_PATH)

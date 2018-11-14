@@ -12,12 +12,12 @@ def html_in(string_in_html, Check = 1, Param = True,file = ""):
     if (Check == 2): #Объект с крестиком
         file.writelines(fr'<pre><p style="margin-left: 40px"><font size = 2> -{string_in_html} </font><br></p></pre>')
     if(Check == 3): # Plain_Text для дополнительных тегов нет тега <br>, поэтому не будет переноса на новую строку, может вызвать ошибку!!!
-        file.writelines(fr'<font size = 5>{string_in_html}</font><br>')
+        file.writelines(fr'<font size = 3>{string_in_html}</font><br>')
 
 def Init_html(PATH_to_Folder):
     global HTML_name
     if(isinstance(PATH_to_Folder,str)):
-       HTML_name = open(PATH_to_Folder + "/Conclusion.html","w")
+       HTML_name = open(PATH_to_Folder + r"\Conclusion.html","w")
     else:
         HTML_name = open("Conclusion.html","w")
     html_in("<head><meta charset=""windows-1251""></head>",3)
@@ -25,7 +25,7 @@ def Init_html(PATH_to_Folder):
 def Out(PATH_to_Folder):
     useless_fun()
     if(isinstance(PATH_to_Folder,str)):
-        webbrowser.open_new(PATH_to_Folder + "/Conclusion.html")
+        webbrowser.open_new(PATH_to_Folder + r"\Conclusion.html")
     else:
         webbrowser.open_new("Conclusion.html")  
     HTML_name.close()

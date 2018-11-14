@@ -125,7 +125,7 @@ def set_regkey_value(value_entry):
         winreg.SetValueEx(opened_regkey, value_entry.name, 0, value_entry.data_type, value_entry.data)
         winreg.CloseKey(opened_regkey)
         logging.info(f"Установка {repr(value_entry).replace('Параметр', 'параметра')}.")
-        HTML_con.html_in(str(value_entry))
+        HTML_con.html_in(str(value_entry), 2)
     except Exception:
         HTML_con.html_in(str(value_entry), Param=False)
 
@@ -156,10 +156,10 @@ def disable_service(service_name):
         logging.info(f"Отключение службы {service_name!r}.")
         run_shell_cmd(f"sc.exe stop {service_name}")
         run_shell_cmd(f"sc.exe config {service_name} start=disabled")
-        HTML_con.html_in(service_name)
+        HTML_con.html_in(service_name, 2)
     else:
         logging.error(f"Указанная служба {service_name!r} не установлена.")
-        HTML_con.html_in(f"Служба {service_name!r} уже отключена.")
+        HTML_con.html_in(f"Служба {service_name!r} уже отключена.", 2)
 
 
 @progressbar("Удаление встроенных приложений")
@@ -167,9 +167,9 @@ def delete_builtin_apps(config_options):
     HTML_con.html_in("Удаленные приложения:",0)
     for app_name, delete in config_options:
         if delete:
-            pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app_name}*)){{return 1}}else{{return 0}}')  # TODO: Remove-AppxPackage
+            pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app_name}*)){{return 1}}else{{return 0}}')
             if(pwrshell_proc.stdout == '1\n'):
-                HTML_con.html_in(BUILTIN_APPS[app_name])
+                HTML_con.html_in(BUILTIN_APPS[app_name])  # TODO: Remove-AppxPackage
             elif(pwrshell_proc.stdout == '0\n'):
                 HTML_con.html_in(BUILTIN_APPS[app_name], Param = False)
                 HTML_con.html_in("Такого приложения не найдено, вероятно, оно не было установлено.",2)
@@ -231,6 +231,8 @@ def Out_webcam():
 def disable_powershell_scripts_execution():
     HTML_con.html_in("Выполнение сценариев PowerShell", 0)
     regkeys = REGKEYS_DICT.get("powershell")
+    HTML_con.html_in("Для всех пользователей установлена политика выполнения (Execution Policy) "
+                     "со значением 'Restricted'.")
     HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys.get("exec_policy"):
         set_regkey_value(regkey)
@@ -286,25 +288,26 @@ def uninstall_onedrive():
 def disable_remote_access():
     HTML_con.html_in("Удаленный доступ", 0)
     regkeys = REGKEYS_DICT.get("remote_access")
-    HTML_con.html_in("Установленные параметры реестра:", 3)
     # Disable Remote Assistance
+    HTML_con.html_in("Удаленный помощник (Remote Assistance) отключен.")
+    HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys.get("remote_assistance"):
         set_regkey_value(regkey)
     # Disable Remote Desktop
+    HTML_con.html_in("Удаленный рабочий стол (Remote Desktop) отключен.")
+    HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys.get("remote_desktop"):
         set_regkey_value(regkey)
-    HTML_con.html_in("Удаленный помощник (Remote Assistance) отключен.")
-    HTML_con.html_in("Удаленный рабочий стол (Remote Desktop) отключен.")
 
 
 @progressbar("Отключение определения местоположения")
 def disable_location_and_sensors():
     HTML_con.html_in("Местоположение и сенсоры", 0)
     regkeys = REGKEYS_DICT.get("location_and_sensors")
+    HTML_con.html_in("Службы определения местоположения были отключены.")
     HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys:
         set_regkey_value(regkey)
-    HTML_con.html_in("Службы определения местоположения были отключены.")
 
 
 @progressbar("Отключение функций слежения и телеметрии")

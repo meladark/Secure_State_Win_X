@@ -47,7 +47,7 @@ TRACKING_AND_TELEMETRY = {
     "advertising_id": "Идентификатор рекламы",
     "browser_access_to_local_language": "Доступ веб-сайтов к списку установленных языков в системе",
     "connected_user_experiences_and_telemetry": "Сбор диагностических данных и телеметрия",
-    "customer_experience_improvement_program": "Программа улучшения качества ПО (Customer Experience Improvement зrogram)",
+    "customer_experience_improvement_program": "Программа улучшения качества ПО (Customer Experience Improvement Program)",
     "microsoft_help_feedback": "Программа улучшения справки (Help Experience Improvement program)",
     "windows_feedback": "Не показывать уведомления об отзывах",
 }

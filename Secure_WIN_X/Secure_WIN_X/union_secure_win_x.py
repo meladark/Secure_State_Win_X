@@ -168,9 +168,9 @@ def delete_builtin_apps(config_options):
     for app_name, delete in config_options:
         if delete:
             pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app_name}*)){{return 1}}else{{return 0}}')  # TODO: Remove-AppxPackage
-            if(pwrshell_proc.stdout == b'1\r\n'):
+            if(pwrshell_proc.stdout == '1\n'):
                 HTML_con.html_in(BUILTIN_APPS[app_name])
-            elif(pwrshell_proc.stdout == b'0\r\n'):
+            elif(pwrshell_proc.stdout == '0\n'):
                 HTML_con.html_in(BUILTIN_APPS[app_name], Param = False)
                 HTML_con.html_in("Такого приложения не найдено, вероятно, оно не было установлено.",2)
         else:

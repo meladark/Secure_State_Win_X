@@ -31,6 +31,8 @@ _DOWNLOAD_PATH = pathlib.WindowsPath.home().joinpath(r"Downloads\config.cfg")
 _LOGRECORD_FORMAT = "%(asctime)s | %(levelname)-8s | %(message)s"
 logging.basicConfig(filename=_CWD.joinpath("logfile.log"), filemode="w", format=_LOGRECORD_FORMAT, level=logging.INFO)
 
+_CODE_PAGE = os.device_encoding(1)
+
 
 def progressbar(process_name):
     def wrapper(func):
@@ -123,7 +125,7 @@ def set_regkey_value(value_entry):
         winreg.SetValueEx(opened_regkey, value_entry.name, 0, value_entry.data_type, value_entry.data)
         winreg.CloseKey(opened_regkey)
         logging.info(f"Установка {repr(value_entry).replace('Параметр', 'параметра')}.")
-        HTML_con.html_in(str(value_entry))
+        HTML_con.html_in(str(value_entry), 2)
     except Exception:
         HTML_con.html_in(str(value_entry), Param=False)
 
@@ -131,7 +133,7 @@ def set_regkey_value(value_entry):
 def run_pwrshell_cmd(*args):
     logging.info(f"Выполнение командлета PowerShell {' '.join(args)!r}.")
     pwrshell_proc = subprocess.run(
-        ["powershell", "-Command", *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ["powershell", "-Command", *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding=_CODE_PAGE
     )
     if not pwrshell_proc.returncode:
         logging.info(f"[УСПЕХ] Последний командлет завершился с кодом 0.")
@@ -142,7 +144,9 @@ def run_pwrshell_cmd(*args):
 
 def run_shell_cmd(command):
     logging.info(f'Выполнение команды {command!r}.')
-    proc = subprocess.run(command.split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.run(
+        command.split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding=_CODE_PAGE
+    )
     return proc
 
 
@@ -152,10 +156,10 @@ def disable_service(service_name):
         logging.info(f"Отключение службы {service_name!r}.")
         run_shell_cmd(f"sc.exe stop {service_name}")
         run_shell_cmd(f"sc.exe config {service_name} start=disabled")
-        HTML_con.html_in(service_name)
+        HTML_con.html_in(service_name, 2)
     else:
         logging.error(f"Указанная служба {service_name!r} не установлена.")
-        HTML_con.html_in(f"Служба {service_name!r} уже отключена.")
+        HTML_con.html_in(f"Служба {service_name!r} уже отключена.", 2)
 
 
 @progressbar("Удаление встроенных приложений")
@@ -163,10 +167,10 @@ def delete_builtin_apps(config_options):
     HTML_con.html_in("Удаленные приложения:",0)
     for app_name, delete in config_options:
         if delete:
-            pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app_name}*)){{return 1}}else{{return 0}}')  # TODO: Remove-AppxPackage
-            if(pwrshell_proc.stdout == b'1\r\n'): 
-                HTML_con.html_in(BUILTIN_APPS[app_name])
-            elif(pwrshell_proc.stdout == b'0\r\n'): 
+            pwrshell_proc = run_pwrshell_cmd(fr'if ((Get-AppxPackage *{app_name}*)){{return 1}}else{{return 0}}')
+            if(pwrshell_proc.stdout == '1\n'):
+                HTML_con.html_in(BUILTIN_APPS[app_name])  # TODO: Remove-AppxPackage
+            elif(pwrshell_proc.stdout == '0\n'):
                 HTML_con.html_in(BUILTIN_APPS[app_name], Param = False)
                 HTML_con.html_in("Такого приложения не найдено, вероятно, оно не было установлено.",2)
         else:
@@ -227,6 +231,8 @@ def Out_webcam():
 def disable_powershell_scripts_execution():
     HTML_con.html_in("Выполнение сценариев PowerShell", 0)
     regkeys = REGKEYS_DICT.get("powershell")
+    HTML_con.html_in("Для всех пользователей установлена политика выполнения (Execution Policy) "
+                     "со значением 'Restricted'.")
     HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys.get("exec_policy"):
         set_regkey_value(regkey)
@@ -237,14 +243,15 @@ def disable_internet_explorer():
     HTML_con.html_in("Internet Explorer", 0)
     dism_params = "/Online /Disable-Feature /FeatureName:Internet-Explorer-Optional-amd64 /NoRestart"
     dism_proc = run_shell_cmd(f"dism.exe {dism_params}")
-    if not dism_proc.returncode:
+    if dism_proc.returncode == 3010:
         HTML_con.html_in("Internet Explorer был отключен.")
         HTML_con.html_in("Примечание: чтобы изменение вступило в силу, необходимо перезагрузить компьютер.", 2)
         HTML_con.html_in("Важно! Поскольку Internet Explorer остается установленным на компьютере даже после "
                          "его отключения, следует и впредь устанавливать обновления безопасности, применимые "
                          "к Internet Explorer.", 2)
     else:
-        HTML_con.html_in("Internet Explorer уже отключен.", Param=False)
+        HTML_con.html_in("Возникла непредвиденная ошибка, Internet Explorer не был отключен.", Param=False)
+        logging.error(dism_proc.stdout)
 
 
 @progressbar("Удаление OneDrive")
@@ -268,7 +275,7 @@ def uninstall_onedrive():
     # Removing startmenu entry
     run_pwrshell_cmd(
         "Remove-Item -Force -ErrorAction SilentlyContinue",
-        os.path.expandvars(r"'%UserProfile%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk'")
+        os.path.expandvars(r'"%UserProfile%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"')
     )
     # Removing scheduled task
     run_pwrshell_cmd(
@@ -281,25 +288,26 @@ def uninstall_onedrive():
 def disable_remote_access():
     HTML_con.html_in("Удаленный доступ", 0)
     regkeys = REGKEYS_DICT.get("remote_access")
-    HTML_con.html_in("Установленные параметры реестра:", 3)
     # Disable Remote Assistance
+    HTML_con.html_in("Удаленный помощник (Remote Assistance) отключен.")
+    HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys.get("remote_assistance"):
         set_regkey_value(regkey)
     # Disable Remote Desktop
+    HTML_con.html_in("Удаленный рабочий стол (Remote Desktop) отключен.")
+    HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys.get("remote_desktop"):
         set_regkey_value(regkey)
-    HTML_con.html_in("Удаленный помощник (Remote Assistance) отключен.")
-    HTML_con.html_in("Удаленный рабочий стол (Remote Desktop) отключен.")
 
 
 @progressbar("Отключение определения местоположения")
 def disable_location_and_sensors():
     HTML_con.html_in("Местоположение и сенсоры", 0)
     regkeys = REGKEYS_DICT.get("location_and_sensors")
+    HTML_con.html_in("Службы определения местоположения были отключены.")
     HTML_con.html_in("Установленные параметры реестра:", 3)
     for regkey in regkeys:
         set_regkey_value(regkey)
-    HTML_con.html_in("Службы определения местоположения были отключены.")
 
 
 @progressbar("Отключение функций слежения и телеметрии")
@@ -335,9 +343,9 @@ def get_argparser():
 if __name__ == "__main__":
     if not is_user_an_admin():
         try:
-            run_as_admin("cmd", "/C", sys.executable, _SCRIPT_PATH)
+            run_as_admin("cmd", "/C", sys.executable, _SCRIPT_PATH, *sys.argv[1:])
         except Exception:
-            print("Пожалуйста, запустите программу от имени администратора!")
+            print("Для запуска программы необходимо обладать правами алминистратора!")
             logging.critical("Критическая ошибка! Программа была запущена не от имени администратора.")
             exit(1)
     else:
@@ -359,12 +367,12 @@ if __name__ == "__main__":
                 while not pathlib.WindowsPath.exists(_DOWNLOAD_PATH):
                     time.sleep(1)
                 _DOWNLOAD_PATH.replace(_CONFIG_PATH)
-        except Exception:
-            logging.critical("Критическая ошибка! Невозможно прочитать файл конфигурации.")
+        except Exception as config_exception:
+            logging.critical(f"Критическая ошибка! Невозможно прочитать файл конфигурации: {config_exception}")
             exit(1)
         else:
             config = get_config(_CONFIG_PATH)
-            HTML_con.Init_html(_CWD.joinpath("Report.html"))
+            HTML_con.Init_html(_CWD.as_posix())
             funcs = {
                 "delete_builtin_apps": delete_builtin_apps,
                 "diagnostic_tracking_and_telemetry": disable_diagtracking_and_telemetry,
@@ -383,5 +391,5 @@ if __name__ == "__main__":
                         funcs.get(section.lower(), lambda: None)()
                     if "disable" not in config_options:
                         funcs.get(section.lower())(config_options.items())
-            HTML_con.Out(_CWD.joinpath("Report.html"))
+            HTML_con.Out(_CWD.as_posix())
             input("\nНажмите любую клавишу для выхода...")

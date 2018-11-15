@@ -261,6 +261,8 @@ def disable_internet_explorer():
         HTML_con.html_in("Важно! Поскольку Internet Explorer остается установленным на компьютере даже после "
                          "его отключения, следует и впредь устанавливать обновления безопасности, применимые "
                          "к Internet Explorer.", 2)
+    elif not dism_proc.returncode:
+        HTML_con.html_in("Internet Explorer уже отключен.")
     else:
         HTML_con.html_in("Возникла непредвиденная ошибка, Internet Explorer не был отключен.", Param=False)
         logging.error(dism_proc.stdout)

@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>233a554f-159b-4373-a717-91fc2151ef5f</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>union_secure_win_x.py</StartupFile>
+    <StartupFile>Main_Executable_SecureWinX.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,11 +22,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="config_data.py" />
+    <Compile Include="Main_Executable_SecureWinX.py" />
     <Compile Include="regkeys_data.py" />
     <Compile Include="HTML_con.py" />
-    <Compile Include="union_secure_win_x.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="FileSaver.js" />
     <Content Include="Web_Form_For_Conf.html" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

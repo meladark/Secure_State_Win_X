@@ -118,16 +118,19 @@ def get_config(config_path):
 
 
 def set_regkey_value(value_entry):
+    logging.info(f"Установка {repr(value_entry).replace('Параметр', 'параметра')}.")
     try:
         opened_regkey = winreg.CreateKeyEx(
             value_entry.root_key, value_entry.subkey, 0, winreg.KEY_WOW64_64KEY + winreg.KEY_WRITE
         )
         winreg.SetValueEx(opened_regkey, value_entry.name, 0, value_entry.data_type, value_entry.data)
         winreg.CloseKey(opened_regkey)
-        logging.info(f"Установка {repr(value_entry).replace('Параметр', 'параметра')}.")
-        HTML_con.html_in(str(value_entry), 2)
-    except Exception:
-        HTML_con.html_in(str(value_entry), Param=False)
+        logging.info("[УСПЕХ] Параметр установлен.")
+        # HTML_con.html_in(str(value_entry), 2)
+        return str(value_entry)
+    except Exception as registry_exception:
+        logging.info(f"[НЕУДАЧА] Параметр не установлен: {registry_exception}.")
+        raise
 
 
 def run_pwrshell_cmd(*args):
@@ -151,15 +154,16 @@ def run_shell_cmd(command):
 
 
 def disable_service(service_name):
+    logging.info(f"Отключение службы {service_name!r}.")
     sc_proc = run_shell_cmd(f"sc.exe query {service_name}")
     if sc_proc.returncode != 1060:
-        logging.info(f"Отключение службы {service_name!r}.")
         run_shell_cmd(f"sc.exe stop {service_name}")
         run_shell_cmd(f"sc.exe config {service_name} start=disabled")
-        HTML_con.html_in(service_name, 2)
+        logging.info(f"[УСПЕХ] Служба {service_name!r} отключена.")
+        return True
     else:
-        logging.error(f"Указанная служба {service_name!r} не установлена.")
-        HTML_con.html_in(f"Служба {service_name!r} уже отключена.", 2)
+        logging.error(f"[НЕУДАЧА] Указанная служба {service_name!r} не установлена.")
+        return False
 
 
 @progressbar("Удаление встроенных приложений")
@@ -232,11 +236,18 @@ def Out_webcam():
 def disable_powershell_scripts_execution():
     HTML_con.html_in("Выполнение сценариев PowerShell", 0)
     regkeys = REGKEYS_DICT.get("powershell")
-    HTML_con.html_in("Для всех пользователей установлена политика выполнения (Execution Policy) "
-                     "со значением 'Restricted'.")
-    HTML_con.html_in("Установленные параметры реестра:", 3)
-    for regkey in regkeys.get("exec_policy"):
-        set_regkey_value(regkey)
+    try:
+        values = []
+        for regkey in regkeys.get("exec_policy"):
+            values.append(set_regkey_value(regkey))
+        HTML_con.html_in("Для всех пользователей установлена политика выполнения (Execution Policy) "
+                         "со значением 'Restricted'.")
+        HTML_con.html_in("Установленные параметры реестра:", 3)
+        for value in values:
+            HTML_con.html_in(value, 2)
+    except Exception:
+        HTML_con.html_in("Политика выполнения (Execution Policy) со значением 'Restricted' "
+                         "не была установлена", Param=False)
 
 
 @progressbar("Отключение Internet Explorer")
@@ -250,6 +261,8 @@ def disable_internet_explorer():
         HTML_con.html_in("Важно! Поскольку Internet Explorer остается установленным на компьютере даже после "
                          "его отключения, следует и впредь устанавливать обновления безопасности, применимые "
                          "к Internet Explorer.", 2)
+    elif not dism_proc.returncode:
+        HTML_con.html_in("Internet Explorer уже отключен.")
     else:
         HTML_con.html_in("Возникла непредвиденная ошибка, Internet Explorer не был отключен.", Param=False)
         logging.error(dism_proc.stdout)
@@ -263,52 +276,69 @@ def uninstall_onedrive():
     # Remove OneDrive
     is_64bit = True if platform.architecture()[0] == "64bit" else False
     sys_folder = "SysWOW64" if is_64bit else "System32"
-    run_shell_cmd(os.path.expandvars(rf"%SystemRoot%\{sys_folder}\OneDriveSetup.exe /uninstall"))
-    HTML_con.html_in("OneDrive был отключен.")
-    HTML_con.html_in("Установленные параметры реестра:", 3)
-    # Disable OneDrive via Group Policies
-    for regkey in regkeys.get("group_policies"):
-        set_regkey_value(regkey)
-    # Remove Onedrive from explorer sidebar
-    set_regkey_value(regkeys.get("explorer_sidebar").get("default"))
-    if is_64bit:
-        set_regkey_value(regkeys.get("explorer_sidebar").get("64bit"))
-    # Removing startmenu entry
-    run_pwrshell_cmd(
-        "Remove-Item -Force -ErrorAction SilentlyContinue",
-        os.path.expandvars(r'"%UserProfile%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"')
-    )
-    # Removing scheduled task
-    run_pwrshell_cmd(
-        r"Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ErrorAction SilentlyContinue", "|",
-        "Unregister-ScheduledTask -Confirm:$false"
-    )
+    uninstall_proc = run_shell_cmd(os.path.expandvars(rf"%SystemRoot%\{sys_folder}\OneDriveSetup.exe /uninstall"))
+    if not uninstall_proc.returncode:
+        HTML_con.html_in("OneDrive был отключен.")
+        values = []
+        # Disable OneDrive via Group Policies
+        for regkey in regkeys.get("group_policies"):
+            values.append(set_regkey_value(regkey))
+        # Remove Onedrive from explorer sidebar
+        values.append(set_regkey_value(regkeys.get("explorer_sidebar").get("default")))
+        if is_64bit:
+            values.append(set_regkey_value(regkeys.get("explorer_sidebar").get("64bit")))
+        HTML_con.html_in("Установленные параметры реестра:", 3)
+        for value in values:
+            HTML_con.html_in(value, 2)
+        # Removing startmenu entry
+        run_pwrshell_cmd(
+            "Remove-Item -Force -ErrorAction SilentlyContinue",
+            os.path.expandvars(r'"%UserProfile%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"')
+        )
+        # Removing scheduled task
+        run_pwrshell_cmd(
+            r"Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ErrorAction SilentlyContinue", "|",
+            "Unregister-ScheduledTask -Confirm:$false"
+        )
+    elif uninstall_proc.returncode == 2147747473:
+        HTML_con.html_in("OneDrive уже отключен.")
+    else:
+        HTML_con.html_in("OneDrive не был отключен.", Param=False)
 
 
 @progressbar("Отключение удаленного доступа")
 def disable_remote_access():
     HTML_con.html_in("Удаленный доступ", 0)
     regkeys = REGKEYS_DICT.get("remote_access")
-    # Disable Remote Assistance
-    HTML_con.html_in("Удаленный помощник (Remote Assistance) отключен.")
-    HTML_con.html_in("Установленные параметры реестра:", 3)
-    for regkey in regkeys.get("remote_assistance"):
-        set_regkey_value(regkey)
-    # Disable Remote Desktop
-    HTML_con.html_in("Удаленный рабочий стол (Remote Desktop) отключен.")
-    HTML_con.html_in("Установленные параметры реестра:", 3)
-    for regkey in regkeys.get("remote_desktop"):
-        set_regkey_value(regkey)
+    # Disable Remote Assistance and Remote Desktop
+    for remote_option in ("remote_assistance", "remote_desktop"):
+        option_name = "Удаленный помощник (Remote Assistance)" if remote_option == "remote_assistance" else "Удаленный рабочий стол (Remote Desktop)"
+        try:
+            values = []
+            for regkey in regkeys.get(remote_option):
+                values.append(set_regkey_value(regkey))
+            HTML_con.html_in(f"{option_name} отключен.")
+            HTML_con.html_in("Установленные параметры реестра:", 3)
+            for value in values:
+                HTML_con.html_in(value, 2)
+        except Exception:
+            HTML_con.html_in(f"{option_name} не отключен.", Param=False)
 
 
 @progressbar("Отключение определения местоположения")
 def disable_location_and_sensors():
     HTML_con.html_in("Местоположение и сенсоры", 0)
     regkeys = REGKEYS_DICT.get("location_and_sensors")
-    HTML_con.html_in("Службы определения местоположения были отключены.")
-    HTML_con.html_in("Установленные параметры реестра:", 3)
-    for regkey in regkeys:
-        set_regkey_value(regkey)
+    try:
+        values = []
+        for regkey in regkeys:
+            values.append(set_regkey_value(regkey))
+        HTML_con.html_in("Службы определения местоположения отключены.")
+        HTML_con.html_in("Установленные параметры реестра:", 3)
+        for value in values:
+            HTML_con.html_in(value, 2)
+    except Exception:
+        HTML_con.html_in(f"Службы определения местоположения не отключены.", Param=False)
 
 
 @progressbar("Отключение функций слежения и телеметрии")
@@ -317,21 +347,31 @@ def disable_diagtracking_and_telemetry(config_options):
     regkeys = REGKEYS_DICT.get("diagtracking_and_telemetry")
     for option, disable in config_options:
         if disable:
-            HTML_con.html_in(TRACKING_AND_TELEMETRY.get(option))
+            servicies = []
             if option == "connected_user_experiences_and_telemetry":
-                HTML_con.html_in("Отключенные службы:", 3)
-                # Disable Diagnostics Tracking Service
-                disable_service("DiagTrack")
-                # Disable Microsoft Diagnostics Hub Standard Collector Service
-                disable_service("diagnosticshub.standardcollector.service")
-                # Disable WAP Push Message Routing Service
-                disable_service("dmwappushservice")
+                for service in ("DiagTrack", "diagnosticshub.standardcollector.service", "dmwappushservice"):
+                    is_disabled = disable_service(service)
+                    servicies.append((service, is_disabled))
             option_regkeys = regkeys.get(option)
             if isinstance(option_regkeys, dict):
                 option_regkeys = chain(*option_regkeys.values())
-            HTML_con.html_in("Установленные параметры реестра:", 3)
-            for regkey in option_regkeys:
-                set_regkey_value(regkey)
+            try:
+                values = []
+                for regkey in option_regkeys:
+                    values.append(set_regkey_value(regkey))
+                HTML_con.html_in(TRACKING_AND_TELEMETRY.get(option))
+                if servicies:
+                    HTML_con.html_in("Отключенные службы:", 3)
+                    for service, is_disabled in servicies:
+                        if is_disabled:
+                            HTML_con.html_in(service, 2)
+                        else:
+                            HTML_con.html_in(f"Служба {service!r} уже отключена.", 2)
+                HTML_con.html_in("Установленные параметры реестра:", 3)
+                for value in values:
+                    HTML_con.html_in(value, 2)
+            except Exception:
+                HTML_con.html_in(TRACKING_AND_TELEMETRY.get(option), Param=False)
 
 
 def get_argparser():

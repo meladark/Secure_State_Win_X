@@ -23,7 +23,6 @@ def Init_html(PATH_to_Folder):
     html_in("<head><meta charset=""windows-1251""></head>",3)
 
 def Out(PATH_to_Folder):
-    useless_fun()
     if(isinstance(PATH_to_Folder,str)):
         webbrowser.open_new(PATH_to_Folder + r"/Conclusion.html")
     else:
